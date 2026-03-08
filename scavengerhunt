@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neighborhood Scavenger Hunt!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sun: #FFD93D;
+    --sky: #6BCEFF;
+    --grass: #6BCB77;
+    --berry: #FF6B6B;
+    --lavender: #C77DFF;
+    --peach: #FFB347;
+    --white: #FFFDF6;
+    --dark: #2D2A32;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @media print {
+    body { background: white !important; }
+    .no-print { display: none !important; }
+    .card { break-inside: avoid; }
+    .page { box-shadow: none !important; }
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--sky);
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(255,255,255,0.3) 60px, transparent 61px),
+      radial-gradient(circle at 25% 18%, rgba(255,255,255,0.25) 40px, transparent 41px),
+      radial-gradient(circle at 70% 10%, rgba(255,255,255,0.3) 70px, transparent 71px),
+      radial-gradient(circle at 82% 8%, rgba(255,255,255,0.25) 50px, transparent 51px),
+      radial-gradient(circle at 50% 80%, var(--grass) 30%, transparent 31%);
+    min-height: 100vh;
+    padding: 30px 20px 60px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .page {
+    background: var(--white);
+    border-radius: 32px;
+    max-width: 700px;
+    width: 100%;
+    padding: 40px 36px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 0 0 6px white, 0 0 0 10px var(--sun);
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .emoji-row {
+    font-size: 2.4rem;
+    letter-spacing: 6px;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 3rem;
+    color: var(--berry);
+    line-height: 1.1;
+    text-shadow: 3px 3px 0 rgba(255,107,107,0.2);
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: #888;
+    font-weight: 700;
+    margin-top: 6px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .divider {
+    border: none;
+    height: 4px;
+    background: repeating-linear-gradient(90deg, var(--sun) 0, var(--sun) 16px, transparent 16px, transparent 24px);
+    border-radius: 4px;
+    margin: 28px 0;
+  }
+
+  .name-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #FFF9E6;
+    border: 3px dashed var(--sun);
+    border-radius: 16px;
+    padding: 14px 20px;
+    margin-bottom: 30px;
+  }
+
+  .name-box label {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--dark);
+    white-space: nowrap;
+  }
+
+  .name-line {
+    flex: 1;
+    border: none;
+    border-bottom: 3px dotted #ccc;
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    color: var(--dark);
+    outline: none;
+    padding: 4px 0;
+  }
+
+  .section-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+
+  @media (max-width: 500px) {
+    .grid { grid-template-columns: 1fr; }
+    h1 { font-size: 2.2rem; }
+  }
+
+  .card {
+    border-radius: 18px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 3px solid transparent;
+    transition: transform 0.15s ease;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .card:hover { transform: scale(1.02); }
+
+  .card.found {
+    opacity: 0.55;
+  }
+
+  .card.found .card-name {
+    text-decoration: line-through;
+    text-decoration-color: #999;
+    text-decoration-thickness: 3px;
+  }
+
+  .card-c1 { background: #FFF0F0; border-color: #FFCCCC; }
+  .card-c2 { background: #FFF8E1; border-color: #FFE082; }
+  .card-c3 { background: #E8F5E9; border-color: #A5D6A7; }
+  .card-c4 { background: #E3F2FD; border-color: #90CAF9; }
+  .card-c5 { background: #F3E5F5; border-color: #CE93D8; }
+  .card-c6 { background: #FBE9E7; border-color: #FFAB91; }
+  .card-c7 { background: #E0F7FA; border-color: #80DEEA; }
+  .card-c8 { background: #F9FBE7; border-color: #C5E1A5; }
+
+  .card-emoji {
+    font-size: 2.2rem;
+    width: 44px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .card-text { flex: 1; }
+
+  .card-name {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--dark);
+    line-height: 1.2;
+  }
+
+  .card-hint {
+    font-size: 0.78rem;
+    color: #888;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .checkbox {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 3px solid #ccc;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.15s;
+    background: white;
+  }
+
+  .card.found .checkbox {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: white;
+  }
+
+  .bonus-section {
+    background: linear-gradient(135deg, #fff9e6, #fff0f8);
+    border: 3px dashed var(--lavender);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+
+  .bonus-section .section-title { color: var(--lavender); }
+
+  .bonus-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .bonus-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  .bonus-item .checkbox {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+  }
+
+  .bonus-item.found .checkbox {
+    background: var(--lavender);
+    border-color: var(--lavender);
+  }
+
+  .bonus-item.found .bonus-name {
+    text-decoration: line-through;
+    color: #bbb;
+  }
+
+  .bonus-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--dark);
+  }
+
+  .bonus-emoji { font-size: 1.4rem; }
+
+  .score-banner {
+    background: linear-gradient(135deg, var(--sun), var(--peach));
+    border-radius: 20px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .score-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: white;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+  }
+
+  .score-count {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+    color: white;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+  }
+
+  .stars {
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+  }
+
+  .congrats {
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--grass);
+    display: none;
+    animation: pop 0.4s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.7); opacity: 0; }
+    80% { transform: scale(1.08); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .print-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--berry);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.3rem;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 6px 0 #cc4444;
+  }
+
+  .print-btn:hover {
+    background: #e05555;
+    transform: translateY(-2px);
+  }
+
+  .print-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #cc4444;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 0.85rem;
+    color: #bbb;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="emoji-row">🌳 🐦 🌸 🦋 🌻</div>
+    <h1>Neighborhood<br>Scavenger Hunt!</h1>
+    <div class="subtitle">How many can you find?</div>
+  </div>
+
+  <div class="name-box">
+    <label>🏅 Explorer:</label>
+    <input class="name-line" type="text" placeholder="Write your name here!">
+  </div>
+
+  <div class="score-banner">
+    <div>
+      <div class="score-label">Things Found</div>
+      <div class="stars" id="stars">⭐⭐⭐⭐⭐</div>
+    </div>
+    <div class="score-count"><span id="found-count">0</span> / <span id="total-count">16</span></div>
+  </div>
+
+  <div class="section-title" style="color: var(--grass);">🌿 Look Around You!</div>
+
+  <div class="grid" id="main-grid">
+    <div class="card card-c3" onclick="toggle(this)">
+      <div class="card-emoji">🌸</div>
+      <div class="card-text">
+        <div class="card-name">A Flower</div>
+        <div class="card-hint">Any color works!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card card-c4" onclick="toggle(this)">
+      <div class="card-emoji">🐦</div>
+      <div class="card-text">
+        <div class="card-name">A Bird</div>
+        <div class="card-hint">Can you hear it sing?</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card card-c2" onclick="toggle(this)">
+      <div class="card-emoji">🐜</div>
+      <div class="card-text">
+        <div class="card-name">A Bug or Insect</div>
+        <div class="card-hint">Ant, bee, or butterfly!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card card-c1" onclick="toggle(this)">
+      <div class="card-emoji">🍂</div>
+      <div class="card-text">
+        <div class="card-name">A Leaf on the Ground</div>
+        <div class="card-hint">Pick it up and look close!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card card-c6" onclick="toggle(this)">
+      <div class="card-emoji">🐕</div>
+      <div class="card-text">
+        <div class="card-name">A Dog Being Walked</div>
+        <div class="card-hint">Wave hello to the owner!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card card-c7" onclick="toggle(this)">
+      <div class="card-emoji">☁️</div>
+      <div class="card-text">
+        <div class="card-name">A Fluffy Cloud</div>
+        <div class="card-hint">Does it look like anything?</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card card-c8" onclick="toggle(this)">
+      <div class="card-emoji">🪨</div>
+      <div class="card-text">
+        <div class="card-name">A Really Big Rock</div>
+        <div class="card-hint">Bigger than your fist!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card card-c3" onclick="toggle(this)">
+      <div class="card-emoji">🌳</div>
+      <div class="card-text">
+        <div class="card-name">A Really Tall Tree</div>
+        <div class="card-hint">Look waaay up high!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card card-c4" onclick="toggle(this)">
+      <div class="card-emoji">🚲</div>
+      <div class="card-text">
+        <div class="card-name">A Bicycle</div>
+        <div class="card-hint">Parked or riding by</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card card-c2" onclick="toggle(this)">
+      <div class="card-emoji">🌈</div>
+      <div class="card-text">
+        <div class="card-name">Something Red</div>
+        <div class="card-hint">A door, car, or sign</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card card-c5" onclick="toggle(this)">
+      <div class="card-emoji">✉️</div>
+      <div class="card-text">
+        <div class="card-name">A Mailbox</div>
+        <div class="card-hint">What color is it?</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card card-c1" onclick="toggle(this)">
+      <div class="card-emoji">🌿</div>
+      <div class="card-text">
+        <div class="card-name">Grass or Weeds</div>
+        <div class="card-hint">Growing in a sidewalk crack</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+  </div>
+
+  <div class="bonus-section">
+    <div class="section-title">⭐ Bonus Challenges!</div>
+    <ul class="bonus-list" id="bonus-list">
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="checkbox"></div>
+        <span class="bonus-emoji">🪱</span>
+        <span class="bonus-name">Find a worm or snail</span>
+      </li>
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="checkbox"></div>
+        <span class="bonus-emoji">🏠</span>
+        <span class="bonus-name">Count 5 houses in a row</span>
+      </li>
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="checkbox"></div>
+        <span class="bonus-emoji">🦋</span>
+        <span class="bonus-name">Spot a butterfly or moth</span>
+      </li>
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="checkbox"></div>
+        <span class="bonus-emoji">🌞</span>
+        <span class="bonus-name">Find a shadow and jump in it!</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="congrats" id="congrats">🎉 Amazing Explorer! You did it! 🎉</div>
+
+  <button class="print-btn no-print" onclick="window.print()">🖨️ Print This Page</button>
+
+  <div class="footer">Happy hunting! 🌟 Remember to stay safe and stick with your grown-up.</div>
+</div>
+
+<script>
+  const mainTotal = 12;
+  const bonusTotal = 4;
+
+  function updateScore() {
+    const foundMain = document.querySelectorAll('#main-grid .card.found').length;
+    const foundBonus = document.querySelectorAll('#bonus-list .bonus-item.found').length;
+    const total = foundMain + foundBonus;
+    const max = mainTotal + bonusTotal;
+
+    document.getElementById('found-count').textContent = total;
+    document.getElementById('total-count').textContent = max;
+
+    const pct = total / max;
+    let stars = '⭐⭐⭐⭐⭐';
+    if (pct === 0) stars = '☆☆☆☆☆';
+    else if (pct < 0.25) stars = '⭐☆☆☆☆';
+    else if (pct < 0.5) stars = '⭐⭐☆☆☆';
+    else if (pct < 0.75) stars = '⭐⭐⭐☆☆';
+    else if (pct < 1) stars = '⭐⭐⭐⭐☆';
+    document.getElementById('stars').textContent = stars;
+
+    const congrats = document.getElementById('congrats');
+    if (total === max) {
+      congrats.style.display = 'block';
+    } else {
+      congrats.style.display = 'none';
+    }
+  }
+
+  function toggle(card) {
+    card.classList.toggle('found');
+    const cb = card.querySelector('.checkbox');
+    cb.textContent = card.classList.contains('found') ? '✓' : '';
+    updateScore();
+  }
+
+  function toggleBonus(item) {
+    item.classList.toggle('found');
+    const cb = item.querySelector('.checkbox');
+    cb.textContent = item.classList.contains('found') ? '✓' : '';
+    updateScore();
+  }
+
+  updateScore();
+</script>
+</body>
+</html>
