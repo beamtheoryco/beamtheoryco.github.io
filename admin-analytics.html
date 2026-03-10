@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Beamly Jr — Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #1a0533 0%, #0d1f3c 100%);
+    min-height: 100vh;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+  .logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #FFD700;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 36px;
+  }
+  .card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 520px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #FFD700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.9rem;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-row .label { color: rgba(255,255,255,0.55); }
+  .info-row .value {
+    font-weight: 700;
+    color: #fff;
+    font-family: monospace;
+    font-size: 0.95rem;
+  }
+  .value.pending {
+    color: #f0a500;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+  }
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.2s;
+    margin-top: 8px;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-primary {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff;
+  }
+  .btn-secondary {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.5;
+  }
+  .step-num {
+    background: #7c3aed;
+    color: #fff;
+    font-weight: 800;
+    min-width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  code {
+    background: rgba(255,255,255,0.12);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-family: monospace;
+  }
+</style>
+</head>
+<body>
+
+<img src="BeamTheoryLogo.png" alt="Beamly Jr" class="logo">
+<h1>Beamly Jr</h1>
+<p class="subtitle">Analytics Admin Panel — private page</p>
+
+<div class="card">
+  <h2>Configuration</h2>
+  <div class="info-row">
+    <span class="label">Tracking ID</span>
+    <span class="value pending">⚠ Replace G-XXXXXXXXXX in both files</span>
+  </div>
+  <div class="info-row">
+    <span class="label">Tracked page</span>
+    <span class="value">index.html</span>
+  </div>
+  <div class="info-row">
+    <span class="label">Script status</span>
+    <span class="value">Active (pending real ID)</span>
+  </div>
+</div>
+
+<div class="card">
+  <h2>View Your Analytics</h2>
+  <a class="btn btn-primary" href="https://analytics.google.com" target="_blank" rel="noopener">
+    Open Google Analytics Dashboard ↗
+  </a>
+  <a class="btn btn-secondary" href="https://analytics.google.com/analytics/web/#/report/realtime-overview" target="_blank" rel="noopener">
+    Real-Time Visitors ↗
+  </a>
+</div>
+
+<div class="card">
+  <h2>Setup Steps</h2>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div>Go to <strong>analytics.google.com</strong> and sign in with your Google account.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div>Create a new <strong>GA4 property</strong>. Set the website URL to your GitHub Pages URL.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div>Copy your <strong>Measurement ID</strong> — it looks like <code>G-XXXXXXXXXX</code>.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div>Replace both instances of <code>G-XXXXXXXXXX</code> in <code>index.html</code> and this file with your real ID.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div>Push to GitHub. Data will start appearing in GA within a few hours.</div>
+  </div>
+</div>
+
+<!-- Google Analytics (also track views of this admin page) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+
+</body>
+</html>
