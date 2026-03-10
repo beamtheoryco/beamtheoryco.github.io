@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Park Alphabet Hunt!</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFF8F0;
+    --dark: #2C1A0E;
+    --amber: #F4A226;
+    --amber-dark: #C97D0A;
+    --teal: #22B5A0;
+    --teal-light: #B2EDE7;
+    --coral: #F4603C;
+    --coral-light: #FFD5CB;
+    --violet: #8B5CF6;
+    --violet-light: #EDE9FE;
+    --lime: #65C728;
+    --lime-light: #DFFAB8;
+    --sky: #3BA3DC;
+    --sky-light: #C8EAFB;
+    --pink: #E8449A;
+    --pink-light: #FCE0F0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @media print {
+    body { background: white !important; padding: 10px !important; }
+    .no-print { display: none !important; }
+    .page { box-shadow: none !important; border: 2px solid #ddd !important; }
+    .letter-card { break-inside: avoid; }
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background:
+      radial-gradient(circle at 10% 10%, rgba(244,162,38,0.15) 120px, transparent 121px),
+      radial-gradient(circle at 90% 15%, rgba(34,181,160,0.15) 100px, transparent 101px),
+      radial-gradient(circle at 50% 95%, rgba(101,199,40,0.15) 150px, transparent 151px),
+      #FFF8F0;
+    min-height: 100vh;
+    padding: 28px 16px 60px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .page {
+    background: white;
+    border-radius: 32px;
+    max-width: 720px;
+    width: 100%;
+    padding: 36px 32px;
+    box-shadow: 0 20px 60px rgba(44,26,14,0.12), 0 0 0 5px white, 0 0 0 9px var(--amber);
+  }
+
+  /* HEADER */
+  .header { text-align: center; margin-bottom: 24px; }
+
+  .emoji-banner {
+    font-size: 2rem;
+    letter-spacing: 4px;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-family: 'Boogaloo', cursive;
+    font-size: 3.2rem;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--coral), var(--amber), var(--lime));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #aaa;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* NAME + SCORE ROW */
+  .meta-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .name-box {
+    flex: 2;
+    min-width: 180px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #FFF3DC;
+    border: 3px dashed var(--amber);
+    border-radius: 14px;
+    padding: 12px 16px;
+  }
+
+  .name-box label { font-weight: 900; font-size: 0.9rem; color: var(--dark); white-space: nowrap; }
+
+  .name-line {
+    flex: 1;
+    border: none;
+    border-bottom: 2px dotted #ccc;
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    color: var(--dark);
+    outline: none;
+  }
+
+  .score-box {
+    flex: 1;
+    min-width: 130px;
+    background: linear-gradient(135deg, var(--teal), #1A9080);
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .score-box .lbl { font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; opacity: 0.85; }
+  .score-box .num { font-family: 'Boogaloo', cursive; font-size: 2rem; line-height: 1.1; }
+
+  /* INSTRUCTIONS */
+  .instructions {
+    background: var(--violet-light);
+    border-left: 5px solid var(--violet);
+    border-radius: 0 14px 14px 0;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #4C2D99;
+    line-height: 1.5;
+  }
+
+  /* ALPHABET GRID */
+  .alpha-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 26px;
+  }
+
+  @media (max-width: 480px) {
+    .alpha-grid { grid-template-columns: repeat(3, 1fr); }
+    h1 { font-size: 2.4rem; }
+  }
+
+  .letter-card {
+    border-radius: 16px;
+    border: 3px solid transparent;
+    padding: 10px 8px 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.12s ease, opacity 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+  }
+
+  .letter-card:hover { transform: scale(1.04); }
+  .letter-card.found { opacity: 0.45; }
+  .letter-card.found .hint { text-decoration: line-through; text-decoration-color: #aaa; }
+
+  /* color cycling for letters */
+  .letter-card:nth-child(7n+1)  { background: var(--coral-light);  border-color: var(--coral);  }
+  .letter-card:nth-child(7n+2)  { background: #FFF3DC;             border-color: var(--amber);  }
+  .letter-card:nth-child(7n+3)  { background: var(--lime-light);   border-color: var(--lime);   }
+  .letter-card:nth-child(7n+4)  { background: var(--sky-light);    border-color: var(--sky);    }
+  .letter-card:nth-child(7n+5)  { background: var(--violet-light); border-color: var(--violet); }
+  .letter-card:nth-child(7n+6)  { background: var(--teal-light);   border-color: var(--teal);   }
+  .letter-card:nth-child(7n+7)  { background: var(--pink-light);   border-color: var(--pink);   }
+
+  .big-letter {
+    font-family: 'Boogaloo', cursive;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--dark);
+  }
+
+  .hint {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #555;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .check-dot {
+    position: absolute;
+    top: 5px; right: 6px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2.5px solid #ccc;
+    background: white;
+    font-size: 0.7rem;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    transition: all 0.15s;
+  }
+
+  .letter-card.found .check-dot {
+    background: var(--teal);
+    border-color: var(--teal);
+  }
+
+  /* WRITE-IN SECTION */
+  .writein-section {
+    background: #F9F9F9;
+    border: 3px solid #ECECEC;
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 24px;
+  }
+
+  .writein-title {
+    font-family: 'Boogaloo', cursive;
+    font-size: 1.2rem;
+    color: var(--dark);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .writein-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  @media (max-width: 480px) { .writein-grid { grid-template-columns: 1fr; } }
+
+  .writein-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border-radius: 10px;
+    padding: 6px 10px;
+    border: 2px solid #E8E8E8;
+  }
+
+  .writein-letter {
+    font-family: 'Boogaloo', cursive;
+    font-size: 1.3rem;
+    color: var(--amber-dark);
+    width: 22px;
+    flex-shrink: 0;
+  }
+
+  .writein-input {
+    flex: 1;
+    border: none;
+    border-bottom: 2px dotted #ccc;
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--dark);
+    outline: none;
+    padding: 2px 0;
+  }
+
+  .writein-input::placeholder { color: #ccc; font-weight: 600; }
+
+  /* CONGRATS */
+  .congrats {
+    text-align: center;
+    font-family: 'Boogaloo', cursive;
+    font-size: 1.8rem;
+    color: var(--coral);
+    display: none;
+    margin-bottom: 16px;
+    animation: pop 0.4s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    80% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* PRINT BUTTON */
+  .print-btn {
+    display: block; width: 100%; padding: 15px;
+    background: var(--coral);
+    color: white; border: none; border-radius: 16px;
+    font-family: 'Boogaloo', cursive; font-size: 1.4rem;
+    cursor: pointer; letter-spacing: 1px;
+    transition: background 0.2s, transform 0.12s;
+    box-shadow: 0 6px 0 #C04020;
+  }
+
+  .print-btn:hover { background: #D44028; transform: translateY(-2px); }
+  .print-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #C04020; }
+
+  .footer { text-align: center; margin-top: 18px; font-size: 0.8rem; color: #ccc; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="emoji-banner">🅰️ 🌳 🔤 🐦 🅱️</div>
+    <h1>Park Alphabet Hunt!</h1>
+    <div class="subtitle">Find something for every letter!</div>
+  </div>
+
+  <div class="meta-row">
+    <div class="name-box">
+      <label>🏅 Explorer:</label>
+      <input class="name-line" type="text" placeholder="Your name here!">
+    </div>
+    <div class="score-box">
+      <div class="lbl">Letters Found</div>
+      <div class="num"><span id="found-count">0</span> / 26</div>
+    </div>
+  </div>
+
+  <div class="instructions">
+    📋 <strong>How to play:</strong> Walk around the park and find something that starts with each letter! Tap a letter when you spot it — or write what you found in the boxes below!
+  </div>
+
+  <div class="alpha-grid" id="alpha-grid">
+    <!-- A–Z cards with park-themed hints -->
+    <div class="letter-card" onclick="toggle(this)" data-letter="A"><div class="check-dot"></div><div class="big-letter">A</div><div class="hint">Ant or Acorn</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="B"><div class="check-dot"></div><div class="big-letter">B</div><div class="hint">Bird or Bench</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="C"><div class="check-dot"></div><div class="big-letter">C</div><div class="hint">Cloud or Cat</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="D"><div class="check-dot"></div><div class="big-letter">D</div><div class="hint">Dog or Dirt</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="E"><div class="check-dot"></div><div class="big-letter">E</div><div class="hint">Earth or Elm tree</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="F"><div class="check-dot"></div><div class="big-letter">F</div><div class="hint">Flower or Fence</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="G"><div class="check-dot"></div><div class="big-letter">G</div><div class="hint">Grass or Gate</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="H"><div class="check-dot"></div><div class="big-letter">H</div><div class="hint">Hill or Hat</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="I"><div class="check-dot"></div><div class="big-letter">I</div><div class="hint">Insect or Ivy</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="J"><div class="check-dot"></div><div class="big-letter">J</div><div class="hint">Jungle gym!</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="K"><div class="check-dot"></div><div class="big-letter">K</div><div class="hint">Kid or Kite</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="L"><div class="check-dot"></div><div class="big-letter">L</div><div class="hint">Leaf or Ladybug</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="M"><div class="check-dot"></div><div class="big-letter">M</div><div class="hint">Mud or Moss</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="N"><div class="check-dot"></div><div class="big-letter">N</div><div class="hint">Nest or Nut</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="O"><div class="check-dot"></div><div class="big-letter">O</div><div class="hint">Oak tree or Owl</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="P"><div class="check-dot"></div><div class="big-letter">P</div><div class="hint">Path or Puddle</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="Q"><div class="check-dot"></div><div class="big-letter">Q</div><div class="hint">Quiet spot!</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="R"><div class="check-dot"></div><div class="big-letter">R</div><div class="hint">Rock or Root</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="S"><div class="check-dot"></div><div class="big-letter">S</div><div class="hint">Squirrel or Slide</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="T"><div class="check-dot"></div><div class="big-letter">T</div><div class="hint">Tree or Trail</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="U"><div class="check-dot"></div><div class="big-letter">U</div><div class="hint">Under a tree!</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="V"><div class="check-dot"></div><div class="big-letter">V</div><div class="hint">Vine or Violet</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="W"><div class="check-dot"></div><div class="big-letter">W</div><div class="hint">Worm or Web</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="X"><div class="check-dot"></div><div class="big-letter">X</div><div class="hint">X marks the spot!</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="Y"><div class="check-dot"></div><div class="big-letter">Y</div><div class="hint">Yellow flower</div></div>
+    <div class="letter-card" onclick="toggle(this)" data-letter="Z"><div class="check-dot"></div><div class="big-letter">Z</div><div class="hint">Zig-zag path!</div></div>
+  </div>
+
+  <!-- Write-in section -->
+  <div class="writein-section">
+    <div class="writein-title">✏️ Write what you found!</div>
+    <div class="writein-grid" id="writein-grid">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <div class="congrats" id="congrats">🎉 A to Z Champion! You found them all! 🎉</div>
+
+  <button class="print-btn no-print" onclick="window.print()">🖨️ Print This Page</button>
+  <div class="footer">Tip: the tricky letters (Q, X, Z) get extra explorer points! 🌟</div>
+</div>
+
+<script>
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+  // Build write-in inputs
+  const writeinGrid = document.getElementById('writein-grid');
+  letters.forEach(l => {
+    const row = document.createElement('div');
+    row.className = 'writein-row';
+    row.id = 'wi-' + l;
+    row.innerHTML = `<span class="writein-letter">${l}</span><input class="writein-input" placeholder="I found a…" />`;
+    writeinGrid.appendChild(row);
+  });
+
+  function updateScore() {
+    const found = document.querySelectorAll('.letter-card.found').length;
+    document.getElementById('found-count').textContent = found;
+    document.getElementById('congrats').style.display = found === 26 ? 'block' : 'none';
+  }
+
+  function toggle(card) {
+    card.classList.toggle('found');
+    card.querySelector('.check-dot').textContent = card.classList.contains('found') ? '✓' : '';
+    updateScore();
+  }
+
+  updateScore();
+</script>
+</body>
+</html>

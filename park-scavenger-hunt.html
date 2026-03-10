@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Park & Jungle Gym Scavenger Hunt!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bark: #8B5E3C;
+    --bark-light: #C8956C;
+    --leaves: #4CAF50;
+    --leaves-dark: #2E7D32;
+    --sky: #64B5F6;
+    --sun: #FDD835;
+    --rust: #E64A19;
+    --sand: #F9E4B7;
+    --sand-dark: #E8C87A;
+    --white: #FDFFF8;
+    --dark: #1B3A1F;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @media print {
+    body { background: white !important; }
+    .no-print { display: none !important; }
+    .page { box-shadow: none !important; border: 3px solid #ccc !important; }
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    background:
+      /* sun */
+      radial-gradient(circle at 88% 8%, var(--sun) 50px, transparent 51px),
+      radial-gradient(circle at 88% 8%, rgba(253,216,53,0.25) 90px, transparent 91px),
+      /* sky to grass */
+      linear-gradient(180deg, #87CEEB 0%, #B6E0FF 48%, #5cb85c 48%, #3d9440 100%);
+    padding: 30px 20px 60px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .page {
+    background: var(--white);
+    border-radius: 36px;
+    max-width: 700px;
+    width: 100%;
+    padding: 40px 36px;
+    box-shadow: 0 24px 70px rgba(46,125,50,0.2), 0 0 0 6px white, 0 0 0 10px var(--bark);
+    position: relative;
+    z-index: 1;
+  }
+
+  .header { text-align: center; margin-bottom: 28px; }
+
+  .emoji-row {
+    font-size: 2.4rem;
+    letter-spacing: 6px;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.8rem;
+    color: var(--leaves-dark);
+    line-height: 1.1;
+    text-shadow: 3px 3px 0 rgba(46,125,50,0.15);
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    color: #999;
+    font-weight: 700;
+    margin-top: 6px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .bark-divider {
+    margin: 22px 0;
+    height: 12px;
+    border-radius: 99px;
+    background: repeating-linear-gradient(90deg,
+      var(--bark) 0, var(--bark) 18px,
+      var(--bark-light) 18px, var(--bark-light) 36px,
+      var(--bark) 36px, var(--bark) 54px,
+      #D4A574 54px, #D4A574 72px);
+    opacity: 0.55;
+  }
+
+  .name-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #F1FBF1;
+    border: 3px dashed var(--leaves);
+    border-radius: 16px;
+    padding: 14px 20px;
+    margin-bottom: 26px;
+  }
+
+  .name-box label { font-weight: 800; font-size: 1rem; color: var(--dark); white-space: nowrap; }
+
+  .name-line {
+    flex: 1;
+    border: none;
+    border-bottom: 3px dotted #aac;
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    color: var(--dark);
+    outline: none;
+    padding: 4px 0;
+  }
+
+  .score-banner {
+    background: linear-gradient(135deg, var(--leaves-dark), var(--leaves));
+    border-radius: 20px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .score-label { font-family: 'Fredoka One', cursive; font-size: 1.1rem; color: white; }
+  .score-count { font-family: 'Fredoka One', cursive; font-size: 2.2rem; color: white; text-shadow: 2px 2px 0 rgba(0,0,0,0.12); }
+  .leaves-row { font-size: 1.5rem; letter-spacing: 2px; }
+
+  .section-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.35rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 11px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 500px) {
+    .grid { grid-template-columns: 1fr; }
+    h1 { font-size: 2rem; }
+  }
+
+  .card {
+    border-radius: 18px;
+    padding: 13px 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 3px solid transparent;
+    transition: transform 0.15s ease, opacity 0.2s;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .card:hover { transform: scale(1.025); }
+  .card.found { opacity: 0.5; }
+  .card.found .card-name {
+    text-decoration: line-through;
+    text-decoration-thickness: 3px;
+    text-decoration-color: #999;
+  }
+
+  /* Jungle gym */
+  .j1 { background: #FFF3E0; border-color: #FFCC80; }
+  .j2 { background: #FBE9E7; border-color: #FFAB91; }
+  .j3 { background: #FCE4EC; border-color: #F48FB1; }
+  .j4 { background: #EDE7F6; border-color: #CE93D8; }
+  /* Nature */
+  .n1 { background: #E8F5E9; border-color: #A5D6A7; }
+  .n2 { background: #F1F8E9; border-color: #C5E1A5; }
+  .n3 { background: #E0F2F1; border-color: #80CBC4; }
+  /* Sky/other */
+  .k1 { background: #E3F2FD; border-color: #90CAF9; }
+  .k2 { background: #FFF8E1; border-color: #FFE082; }
+
+  .card-emoji { font-size: 2.1rem; width: 40px; text-align: center; flex-shrink: 0; }
+  .card-text { flex: 1; }
+  .card-name { font-weight: 800; font-size: 0.97rem; color: var(--dark); line-height: 1.2; }
+  .card-hint { font-size: 0.76rem; color: #888; font-weight: 600; margin-top: 2px; }
+
+  .checkbox {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    border: 3px solid #ccc;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    background: white;
+    transition: all 0.15s;
+    color: white;
+  }
+
+  .card.found .checkbox { background: var(--leaves-dark); border-color: var(--leaves-dark); }
+
+  .bonus-section {
+    background: linear-gradient(135deg, #FFF8DC, #F1FBF1);
+    border: 3px dashed var(--bark-light);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+
+  .bonus-section .section-title { color: var(--bark); }
+
+  .bonus-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+  .bonus-item {
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; user-select: none;
+  }
+
+  .bonus-item .checkbox { width: 26px; height: 26px; border-radius: 7px; }
+  .bonus-item.found .checkbox { background: var(--bark); border-color: var(--bark); }
+  .bonus-item.found .bonus-name { text-decoration: line-through; color: #bbb; }
+  .bonus-name { font-weight: 700; font-size: 0.95rem; color: var(--dark); }
+  .bonus-emoji { font-size: 1.4rem; }
+
+  .congrats {
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--leaves-dark);
+    display: none;
+    margin-bottom: 18px;
+    animation: pop 0.4s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.7); opacity: 0; }
+    80% { transform: scale(1.08); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .print-btn {
+    display: block; width: 100%; padding: 16px;
+    background: var(--bark);
+    color: white; border: none; border-radius: 16px;
+    font-family: 'Fredoka One', cursive; font-size: 1.3rem;
+    cursor: pointer; letter-spacing: 1px;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 6px 0 #5D3A1A;
+  }
+
+  .print-btn:hover { background: #6D4825; transform: translateY(-2px); }
+  .print-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #5D3A1A; }
+
+  .footer { text-align: center; margin-top: 20px; font-size: 0.82rem; color: #bbb; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="emoji-row">🛝 🌳 🐿️ 🪲 ☀️</div>
+    <h1>Park &amp; Jungle Gym<br>Scavenger Hunt!</h1>
+    <div class="subtitle">Adventure awaits at the park!</div>
+  </div>
+
+  <div class="name-box">
+    <label>🏅 Explorer:</label>
+    <input class="name-line" type="text" placeholder="Write your name here!">
+  </div>
+
+  <div class="score-banner">
+    <div>
+      <div class="score-label">Things Found</div>
+      <div class="leaves-row" id="leaves">🍃🍃🍃🍃🍃</div>
+    </div>
+    <div class="score-count"><span id="found-count">0</span> / <span id="total-count">18</span></div>
+  </div>
+
+  <!-- Jungle Gym Section -->
+  <div class="section-title" style="color: var(--rust);">🛝 On the Jungle Gym</div>
+  <div class="grid" id="gym-grid">
+    <div class="card j1" onclick="toggle(this)">
+      <div class="card-emoji">🛝</div>
+      <div class="card-text">
+        <div class="card-name">A Slide</div>
+        <div class="card-hint">Is it fast or slow?</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card j2" onclick="toggle(this)">
+      <div class="card-emoji">🔗</div>
+      <div class="card-text">
+        <div class="card-name">A Swing</div>
+        <div class="card-hint">How high can you go?!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card j3" onclick="toggle(this)">
+      <div class="card-emoji">🪜</div>
+      <div class="card-text">
+        <div class="card-name">A Ladder or Climbing Wall</div>
+        <div class="card-hint">Count the rungs!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card j4" onclick="toggle(this)">
+      <div class="card-emoji">🌉</div>
+      <div class="card-text">
+        <div class="card-name">A Bridge or Wobbly Walk</div>
+        <div class="card-hint">Try not to fall off!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card j1" onclick="toggle(this)">
+      <div class="card-emoji">🏗️</div>
+      <div class="card-text">
+        <div class="card-name">Monkey Bars</div>
+        <div class="card-hint">Hang like a monkey!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card j2" onclick="toggle(this)">
+      <div class="card-emoji">🔭</div>
+      <div class="card-text">
+        <div class="card-name">A Tunnel or Hiding Spot</div>
+        <div class="card-hint">Peek-a-boo!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card k2" onclick="toggle(this)">
+      <div class="card-emoji">🏖️</div>
+      <div class="card-text">
+        <div class="card-name">Sand or Wood Chips</div>
+        <div class="card-hint">What's under your feet?</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card j3" onclick="toggle(this)">
+      <div class="card-emoji">👧</div>
+      <div class="card-text">
+        <div class="card-name">Another Kid Playing</div>
+        <div class="card-hint">Wave and say hi!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+  </div>
+
+  <div class="bark-divider"></div>
+
+  <!-- Nature at the Park -->
+  <div class="section-title" style="color: var(--leaves-dark);">🌳 Nature at the Park</div>
+  <div class="grid" id="nature-grid">
+    <div class="card n1" onclick="toggle(this)">
+      <div class="card-emoji">🐿️</div>
+      <div class="card-text">
+        <div class="card-name">A Squirrel</div>
+        <div class="card-hint">Scurrying up a tree!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card n2" onclick="toggle(this)">
+      <div class="card-emoji">🍦</div>
+      <div class="card-text">
+        <div class="card-name">A Dandelion</div>
+        <div class="card-hint">Make a wish and blow!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card n3" onclick="toggle(this)">
+      <div class="card-emoji">🍂</div>
+      <div class="card-text">
+        <div class="card-name">A Funny-Shaped Leaf</div>
+        <div class="card-hint">Keep it as a souvenir!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card n1" onclick="toggle(this)">
+      <div class="card-emoji">🐦</div>
+      <div class="card-text">
+        <div class="card-name">A Bird on the Ground</div>
+        <div class="card-hint">Hopping around looking for food</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card k1" onclick="toggle(this)">
+      <div class="card-emoji">🌤️</div>
+      <div class="card-text">
+        <div class="card-name">A Cloud That Looks Like Something</div>
+        <div class="card-hint">Animal? Food? Describe it!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card n2" onclick="toggle(this)">
+      <div class="card-emoji">🌳</div>
+      <div class="card-text">
+        <div class="card-name">Tree Bark</div>
+        <div class="card-hint">Touch it — is it rough or smooth?</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+  </div>
+
+  <!-- Bonus -->
+  <div class="bonus-section">
+    <div class="section-title">⭐ Bonus Jungle Challenges!</div>
+    <ul class="bonus-list" id="bonus-list">
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="checkbox"></div>
+        <span class="bonus-emoji">🏃</span>
+        <span class="bonus-name">Race from the swings to the slide!</span>
+      </li>
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="checkbox"></div>
+        <span class="bonus-emoji">🗿</span>
+        <span class="bonus-name">Find the biggest rock in the park</span>
+      </li>
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="checkbox"></div>
+        <span class="bonus-emoji">🎨</span>
+        <span class="bonus-name">Find 3 different colors on the playground</span>
+      </li>
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="checkbox"></div>
+        <span class="bonus-emoji">📣</span>
+        <span class="bonus-name">Yell "I'm an explorer!" from the top of the slide</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="congrats" id="congrats">🎉 Park Champion Explorer! You found it all! 🎉</div>
+
+  <button class="print-btn no-print" onclick="window.print()">🖨️ Print This Page</button>
+
+  <div class="footer">Remember: stay where a grown-up can see you! 🌳</div>
+</div>
+
+<script>
+  const mainTotal = 14;
+  const bonusTotal = 4;
+
+  function updateScore() {
+    const foundMain = document.querySelectorAll('#gym-grid .card.found, #nature-grid .card.found').length;
+    const foundBonus = document.querySelectorAll('#bonus-list .bonus-item.found').length;
+    const total = foundMain + foundBonus;
+    const max = mainTotal + bonusTotal;
+
+    document.getElementById('found-count').textContent = total;
+    document.getElementById('total-count').textContent = max;
+
+    const pct = total / max;
+    let lvs = '🍃🍃🍃🍃🍃';
+    if (pct === 0) lvs = '○○○○○';
+    else if (pct < 0.25) lvs = '🍃○○○○';
+    else if (pct < 0.5) lvs = '🍃🍃○○○';
+    else if (pct < 0.75) lvs = '🍃🍃🍃○○';
+    else if (pct < 1) lvs = '🍃🍃🍃🍃○';
+    document.getElementById('leaves').textContent = lvs;
+
+    document.getElementById('congrats').style.display = total === max ? 'block' : 'none';
+  }
+
+  function toggle(card) {
+    card.classList.toggle('found');
+    card.querySelector('.checkbox').textContent = card.classList.contains('found') ? '✓' : '';
+    updateScore();
+  }
+
+  function toggleBonus(item) {
+    item.classList.toggle('found');
+    item.querySelector('.checkbox').textContent = item.classList.contains('found') ? '✓' : '';
+    updateScore();
+  }
+
+  updateScore();
+</script>
+</body>
+</html>

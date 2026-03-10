@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backyard & Pool Scavenger Hunt!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pool: #00B4D8;
+    --pool-light: #90E0EF;
+    --pool-dark: #0077B6;
+    --grass: #52B788;
+    --grass-light: #B7E4C7;
+    --sun: #FFD60A;
+    --sand: #FFF3B0;
+    --coral: #FF6B6B;
+    --white: #F8FFFF;
+    --dark: #023E8A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @media print {
+    body { background: white !important; }
+    .no-print { display: none !important; }
+    .page { box-shadow: none !important; border: 3px solid #ccc !important; }
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #87CEEB 0%, #B0E8FF 40%, #52B788 40%, #3a9a6a 100%);
+    padding: 30px 20px 60px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Animated pool waves in background */
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 120px;
+    background: repeating-linear-gradient(90deg, rgba(0,180,216,0.35) 0, rgba(0,180,216,0.35) 60px, rgba(144,224,239,0.25) 60px, rgba(144,224,239,0.25) 120px);
+    animation: wave 4s linear infinite;
+    pointer-events: none;
+    border-radius: 60% 60% 0 0;
+  }
+
+  @keyframes wave {
+    0% { background-position: 0 0; }
+    100% { background-position: 120px 0; }
+  }
+
+  .page {
+    background: var(--white);
+    border-radius: 36px;
+    max-width: 700px;
+    width: 100%;
+    padding: 40px 36px;
+    box-shadow: 0 24px 70px rgba(0,119,182,0.25), 0 0 0 6px white, 0 0 0 10px var(--pool);
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .emoji-row {
+    font-size: 2.4rem;
+    letter-spacing: 6px;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.8rem;
+    color: var(--pool-dark);
+    line-height: 1.1;
+    text-shadow: 3px 3px 0 rgba(0,119,182,0.15);
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    color: #888;
+    font-weight: 700;
+    margin-top: 6px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .wave-divider {
+    margin: 24px 0;
+    height: 14px;
+    background: repeating-linear-gradient(90deg, var(--pool-light) 0, var(--pool-light) 20px, var(--pool) 20px, var(--pool) 40px);
+    border-radius: 99px;
+    opacity: 0.5;
+  }
+
+  .name-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #E0F7FF;
+    border: 3px dashed var(--pool);
+    border-radius: 16px;
+    padding: 14px 20px;
+    margin-bottom: 26px;
+  }
+
+  .name-box label {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--dark);
+    white-space: nowrap;
+  }
+
+  .name-line {
+    flex: 1;
+    border: none;
+    border-bottom: 3px dotted #aad;
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    color: var(--dark);
+    outline: none;
+    padding: 4px 0;
+  }
+
+  .score-banner {
+    background: linear-gradient(135deg, var(--pool-dark), var(--pool));
+    border-radius: 20px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .score-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: white;
+  }
+
+  .score-count {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+    color: white;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.15);
+  }
+
+  .drops { font-size: 1.5rem; letter-spacing: 3px; }
+
+  .section-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.35rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 11px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 500px) {
+    .grid { grid-template-columns: 1fr; }
+    h1 { font-size: 2rem; }
+  }
+
+  .card {
+    border-radius: 18px;
+    padding: 13px 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 3px solid transparent;
+    transition: transform 0.15s ease, opacity 0.2s;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .card:hover { transform: scale(1.025); }
+
+  .card.found { opacity: 0.5; }
+  .card.found .card-name {
+    text-decoration: line-through;
+    text-decoration-thickness: 3px;
+    text-decoration-color: #999;
+  }
+
+  /* Pool cards */
+  .p1 { background: #E0F7FF; border-color: #90E0EF; }
+  .p2 { background: #D6F4FF; border-color: #67D5F5; }
+  .p3 { background: #CCF0FF; border-color: #48CAE4; }
+  .p4 { background: #C2ECFF; border-color: #00B4D8; }
+  /* Yard cards */
+  .g1 { background: #DFFFEE; border-color: #95D5B2; }
+  .g2 { background: #D8F5E6; border-color: #74C69D; }
+  .g3 { background: #CFFADE; border-color: #52B788; }
+  .g4 { background: #C5F5D5; border-color: #40916C; }
+  /* Sun/sky cards */
+  .s1 { background: #FFFBE0; border-color: #FFE44D; }
+  .s2 { background: #FFF5CC; border-color: #FFD60A; }
+
+  .card-emoji {
+    font-size: 2.1rem;
+    width: 40px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .card-text { flex: 1; }
+
+  .card-name {
+    font-weight: 800;
+    font-size: 0.97rem;
+    color: var(--dark);
+    line-height: 1.2;
+  }
+
+  .card-hint {
+    font-size: 0.76rem;
+    color: #888;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .checkbox {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 3px solid #ccc;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    background: white;
+    transition: all 0.15s;
+    color: white;
+  }
+
+  .card.found .checkbox {
+    background: var(--pool-dark);
+    border-color: var(--pool-dark);
+  }
+
+  /* Bonus */
+  .bonus-section {
+    background: linear-gradient(135deg, #FFF9D6, #E0F7FF);
+    border: 3px dashed var(--sun);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+
+  .bonus-section .section-title { color: #cc8800; }
+
+  .bonus-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+  .bonus-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .bonus-item .checkbox { width: 26px; height: 26px; border-radius: 7px; }
+
+  .bonus-item.found .checkbox { background: #e6a800; border-color: #e6a800; }
+  .bonus-item.found .bonus-name { text-decoration: line-through; color: #bbb; }
+
+  .bonus-name { font-weight: 700; font-size: 0.95rem; color: var(--dark); }
+  .bonus-emoji { font-size: 1.4rem; }
+
+  .congrats {
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--pool-dark);
+    display: none;
+    margin-bottom: 18px;
+    animation: pop 0.4s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.7); opacity: 0; }
+    80% { transform: scale(1.08); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .print-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--pool-dark);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.3rem;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 6px 0 #005f8e;
+  }
+
+  .print-btn:hover { background: #005f8e; transform: translateY(-2px); }
+  .print-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #005f8e; }
+
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.82rem;
+    color: #bbb;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="emoji-row">🏊 🌿 ☀️ 🦎 💦</div>
+    <h1>Backyard &amp; Pool<br>Scavenger Hunt!</h1>
+    <div class="subtitle">Explore your own backyard!</div>
+  </div>
+
+  <div class="name-box">
+    <label>🏅 Explorer:</label>
+    <input class="name-line" type="text" placeholder="Write your name here!">
+  </div>
+
+  <div class="score-banner">
+    <div>
+      <div class="score-label">Things Found</div>
+      <div class="drops" id="drops">💧💧💧💧💧</div>
+    </div>
+    <div class="score-count"><span id="found-count">0</span> / <span id="total-count">16</span></div>
+  </div>
+
+  <!-- Pool Section -->
+  <div class="section-title" style="color: var(--pool-dark);">🏊 In & Around the Pool</div>
+  <div class="grid" id="pool-grid">
+    <div class="card p1" onclick="toggle(this)">
+      <div class="card-emoji">🩱</div>
+      <div class="card-text">
+        <div class="card-name">A Pool Toy or Float</div>
+        <div class="card-hint">Noodle, ring, or raft!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card p2" onclick="toggle(this)">
+      <div class="card-emoji">💦</div>
+      <div class="card-text">
+        <div class="card-name">A Splash of Water</div>
+        <div class="card-hint">Make one yourself!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card p3" onclick="toggle(this)">
+      <div class="card-emoji">🪣</div>
+      <div class="card-text">
+        <div class="card-name">A Bucket or Watering Can</div>
+        <div class="card-hint">Any size counts!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card p4" onclick="toggle(this)">
+      <div class="card-emoji">🕶️</div>
+      <div class="card-text">
+        <div class="card-name">Sunglasses</div>
+        <div class="card-hint">Gotta protect those eyes!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card p1" onclick="toggle(this)">
+      <div class="card-emoji">🧴</div>
+      <div class="card-text">
+        <div class="card-name">Sunscreen</div>
+        <div class="card-hint">SPF explorer approved!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card p2" onclick="toggle(this)">
+      <div class="card-emoji">🌊</div>
+      <div class="card-text">
+        <div class="card-name">A Ripple in the Water</div>
+        <div class="card-hint">Watch the waves move!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+  </div>
+
+  <div class="wave-divider"></div>
+
+  <!-- Backyard Section -->
+  <div class="section-title" style="color: var(--grass);">🌿 In the Backyard</div>
+  <div class="grid" id="yard-grid">
+    <div class="card g1" onclick="toggle(this)">
+      <div class="card-emoji">🦎</div>
+      <div class="card-text">
+        <div class="card-name">A Lizard or Frog</div>
+        <div class="card-hint">Check near rocks or plants!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card g2" onclick="toggle(this)">
+      <div class="card-emoji">🕷️</div>
+      <div class="card-text">
+        <div class="card-name">A Spider Web</div>
+        <div class="card-hint">Look in corners and bushes</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card g3" onclick="toggle(this)">
+      <div class="card-emoji">🌺</div>
+      <div class="card-text">
+        <div class="card-name">A Flower or Plant</div>
+        <div class="card-hint">What color is it?</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card g4" onclick="toggle(this)">
+      <div class="card-emoji">🐝</div>
+      <div class="card-text">
+        <div class="card-name">A Bee or Butterfly</div>
+        <div class="card-hint">Don't touch — just look!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card g1" onclick="toggle(this)">
+      <div class="card-emoji">🪴</div>
+      <div class="card-text">
+        <div class="card-name">A Pot or Planter</div>
+        <div class="card-hint">On the patio or ground</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card g2" onclick="toggle(this)">
+      <div class="card-emoji">🐛</div>
+      <div class="card-text">
+        <div class="card-name">A Worm or Bug</div>
+        <div class="card-hint">Dig gently near the dirt!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card s1" onclick="toggle(this)">
+      <div class="card-emoji">☀️</div>
+      <div class="card-text">
+        <div class="card-name">Your Own Shadow</div>
+        <div class="card-hint">Wave at it!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+    <div class="card s2" onclick="toggle(this)">
+      <div class="card-emoji">🐦</div>
+      <div class="card-text">
+        <div class="card-name">A Bird Flying By</div>
+        <div class="card-hint">Or sitting in a tree!</div>
+      </div>
+      <div class="checkbox"></div>
+    </div>
+  </div>
+
+  <!-- Bonus -->
+  <div class="bonus-section">
+    <div class="section-title">⭐ Bonus Splash Challenges!</div>
+    <ul class="bonus-list" id="bonus-list">
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="checkbox"></div>
+        <span class="bonus-emoji">🌡️</span>
+        <span class="bonus-name">Feel if the pool deck is warm or cool</span>
+      </li>
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="checkbox"></div>
+        <span class="bonus-emoji">🏗️</span>
+        <span class="bonus-name">Find something that makes a good splash!</span>
+      </li>
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="checkbox"></div>
+        <span class="bonus-emoji">🌱</span>
+        <span class="bonus-name">Find the tiniest plant or leaf you can</span>
+      </li>
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="checkbox"></div>
+        <span class="bonus-emoji">🌤️</span>
+        <span class="bonus-name">Spot an airplane or bird high in the sky</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="congrats" id="congrats">🎉 Super Splash Explorer! You found everything! 🎉</div>
+
+  <button class="print-btn no-print" onclick="window.print()">🖨️ Print This Page</button>
+
+  <div class="footer">Stay safe near the pool — always swim with a grown-up! 💙</div>
+</div>
+
+<script>
+  const mainTotal = 14;
+  const bonusTotal = 4;
+
+  function updateScore() {
+    const foundMain = document.querySelectorAll('#pool-grid .card.found, #yard-grid .card.found').length;
+    const foundBonus = document.querySelectorAll('#bonus-list .bonus-item.found').length;
+    const total = foundMain + foundBonus;
+    const max = mainTotal + bonusTotal;
+
+    document.getElementById('found-count').textContent = total;
+    document.getElementById('total-count').textContent = max;
+
+    const pct = total / max;
+    let drops = '💧💧💧💧💧';
+    if (pct === 0) drops = '○○○○○';
+    else if (pct < 0.25) drops = '💧○○○○';
+    else if (pct < 0.5) drops = '💧💧○○○';
+    else if (pct < 0.75) drops = '💧💧💧○○';
+    else if (pct < 1) drops = '💧💧💧💧○';
+    document.getElementById('drops').textContent = drops;
+
+    document.getElementById('congrats').style.display = total === max ? 'block' : 'none';
+  }
+
+  function toggle(card) {
+    card.classList.toggle('found');
+    card.querySelector('.checkbox').textContent = card.classList.contains('found') ? '✓' : '';
+    updateScore();
+  }
+
+  function toggleBonus(item) {
+    item.classList.toggle('found');
+    item.querySelector('.checkbox').textContent = item.classList.contains('found') ? '✓' : '';
+    updateScore();
+  }
+
+  updateScore();
+</script>
+</body>
+</html>

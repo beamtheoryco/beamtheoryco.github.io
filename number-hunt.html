@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Scavenger Hunt!</title>
+<link href="https://fonts.googleapis.com/css2?family=Chewy&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1A1035;
+    --card-bg: #241848;
+    --gold: #FFD700;
+    --gold-light: #FFF3A3;
+    --mint: #4ECDC4;
+    --coral: #FF6B6B;
+    --violet: #C77DFF;
+    --sky: #74C0FC;
+    --lime: #A9E34B;
+    --peach: #FFA94D;
+    --white: #F8F9FF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @media print {
+    body { background: white !important; color: black !important; }
+    .page { background: white !important; box-shadow: none !important; border: 2px solid #ccc !important; }
+    .number-card { background: #f5f5f5 !important; border: 2px solid #ccc !important; color: black !important; }
+    .big-num { color: #333 !important; }
+    .card-task { color: #222 !important; }
+    .card-hint { color: #666 !important; }
+    .no-print { display: none !important; }
+    .score-banner { background: #eee !important; color: black !important; }
+    .score-label, .score-count, .score-sub { color: black !important; }
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(199,125,255,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(78,205,196,0.15) 0%, transparent 50%),
+      var(--bg);
+    padding: 28px 16px 60px;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Floating stars in BG */
+  body::before {
+    content: '★ ✦ ✶ ★ ✦ ✶ ★ ✦ ✶ ★ ✦ ✶ ★ ✦';
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.06);
+    letter-spacing: 28px;
+    pointer-events: none;
+    padding: 20px;
+    line-height: 3.5;
+    word-break: break-all;
+  }
+
+  .page {
+    background: var(--card-bg);
+    border-radius: 36px;
+    max-width: 720px;
+    width: 100%;
+    padding: 38px 32px;
+    box-shadow:
+      0 0 0 2px rgba(255,215,0,0.3),
+      0 0 0 5px rgba(255,215,0,0.08),
+      0 30px 80px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  .header { text-align: center; margin-bottom: 26px; }
+
+  .emoji-row { font-size: 2rem; letter-spacing: 5px; margin-bottom: 8px; }
+
+  h1 {
+    font-family: 'Chewy', cursive;
+    font-size: 3.2rem;
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(255,215,0,0.5), 3px 3px 0 rgba(0,0,0,0.3);
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+
+  /* META ROW */
+  .meta-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+
+  .name-box {
+    flex: 2; min-width: 180px;
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.07);
+    border: 2px dashed rgba(255,215,0,0.4);
+    border-radius: 14px;
+    padding: 12px 16px;
+  }
+
+  .name-box label { font-weight: 900; font-size: 0.88rem; color: var(--gold); white-space: nowrap; }
+
+  .name-line {
+    flex: 1;
+    border: none;
+    border-bottom: 2px dotted rgba(255,255,255,0.25);
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    color: white;
+    outline: none;
+  }
+
+  .name-line::placeholder { color: rgba(255,255,255,0.25); }
+
+  .score-banner {
+    flex: 1; min-width: 130px;
+    background: linear-gradient(135deg, #FFD700, #FF9500);
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+
+  .score-label { font-size: 0.7rem; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(0,0,0,0.5); }
+  .score-count { font-family: 'Chewy', cursive; font-size: 2.2rem; line-height: 1; color: #1A1035; }
+  .score-sub { font-size: 0.65rem; font-weight: 800; color: rgba(0,0,0,0.45); }
+
+  /* INSTRUCTIONS */
+  .instructions {
+    background: rgba(116,192,252,0.12);
+    border-left: 4px solid var(--sky);
+    border-radius: 0 12px 12px 0;
+    padding: 11px 15px;
+    margin-bottom: 26px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.6;
+  }
+
+  .instructions strong { color: var(--sky); }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'Chewy', cursive;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* NUMBER CARDS GRID */
+  .num-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+
+  @media (max-width: 500px) {
+    .num-grid { grid-template-columns: repeat(2, 1fr); }
+    h1 { font-size: 2.4rem; }
+  }
+
+  .number-card {
+    border-radius: 20px;
+    padding: 14px 12px 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.12s ease, opacity 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    border: 2px solid transparent;
+  }
+
+  .number-card:hover { transform: scale(1.04) rotate(-1deg); }
+  .number-card.found { opacity: 0.35; }
+  .number-card.found .card-task { text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.3); }
+
+  /* Each card gets a unique accent color */
+  .c1  { background: rgba(255,107,107,0.18); border-color: rgba(255,107,107,0.5); }
+  .c2  { background: rgba(255,169,77,0.18);  border-color: rgba(255,169,77,0.5);  }
+  .c3  { background: rgba(255,215,0,0.15);   border-color: rgba(255,215,0,0.45);  }
+  .c4  { background: rgba(169,227,75,0.18);  border-color: rgba(169,227,75,0.5);  }
+  .c5  { background: rgba(78,205,196,0.18);  border-color: rgba(78,205,196,0.5);  }
+  .c6  { background: rgba(116,192,252,0.18); border-color: rgba(116,192,252,0.5); }
+  .c7  { background: rgba(199,125,255,0.18); border-color: rgba(199,125,255,0.5); }
+  .c8  { background: rgba(255,107,107,0.18); border-color: rgba(255,107,107,0.5); }
+  .c9  { background: rgba(255,169,77,0.18);  border-color: rgba(255,169,77,0.5);  }
+  .c10 { background: rgba(78,205,196,0.18);  border-color: rgba(78,205,196,0.5);  }
+
+  .big-num {
+    font-family: 'Chewy', cursive;
+    font-size: 2.8rem;
+    line-height: 1;
+  }
+
+  .c1  .big-num { color: var(--coral);  }
+  .c2  .big-num { color: var(--peach);  }
+  .c3  .big-num { color: var(--gold);   }
+  .c4  .big-num { color: var(--lime);   }
+  .c5  .big-num { color: var(--mint);   }
+  .c6  .big-num { color: var(--sky);    }
+  .c7  .big-num { color: var(--violet); }
+  .c8  .big-num { color: var(--coral);  }
+  .c9  .big-num { color: var(--peach);  }
+  .c10 .big-num { color: var(--mint);   }
+
+  .card-task {
+    font-weight: 900;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.9);
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .card-hint {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .check-badge {
+    position: absolute;
+    top: 7px; right: 8px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem;
+    color: white;
+    transition: all 0.15s;
+  }
+
+  .number-card.found .check-badge {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #1A1035;
+  }
+
+  /* BONUS */
+  .bonus-section {
+    background: rgba(255,215,0,0.07);
+    border: 2px dashed rgba(255,215,0,0.35);
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 24px;
+  }
+
+  .bonus-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+  .bonus-item {
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; user-select: none;
+  }
+
+  .bonus-cb {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    border: 2px solid rgba(255,215,0,0.4);
+    background: rgba(255,215,0,0.06);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; color: #1A1035;
+    transition: all 0.15s;
+  }
+
+  .bonus-item.found .bonus-cb { background: var(--gold); border-color: var(--gold); }
+  .bonus-item.found .bonus-name { text-decoration: line-through; color: rgba(255,255,255,0.3); }
+
+  .bonus-icon { font-size: 1.3rem; }
+  .bonus-name { font-weight: 800; font-size: 0.92rem; color: rgba(255,255,255,0.8); }
+
+  /* CONGRATS */
+  .congrats {
+    text-align: center;
+    font-family: 'Chewy', cursive;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(255,215,0,0.6);
+    display: none;
+    margin-bottom: 18px;
+    animation: pop 0.4s ease;
+  }
+
+  @keyframes pop {
+    0%   { transform: scale(0.6); opacity: 0; }
+    80%  { transform: scale(1.1); }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+
+  /* PRINT BTN */
+  .print-btn {
+    display: block; width: 100%; padding: 15px;
+    background: linear-gradient(135deg, var(--gold), var(--peach));
+    color: #1A1035; border: none; border-radius: 16px;
+    font-family: 'Chewy', cursive; font-size: 1.5rem;
+    cursor: pointer; letter-spacing: 1px;
+    transition: opacity 0.2s, transform 0.12s;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+  }
+
+  .print-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+  .print-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+
+  .footer { text-align: center; margin-top: 18px; font-size: 0.78rem; color: rgba(255,255,255,0.2); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="emoji-row">1️⃣ 🔢 🏠 🔢 2️⃣</div>
+    <h1>Number Hunt!</h1>
+    <div class="subtitle">Count everything in the house!</div>
+  </div>
+
+  <div class="meta-row">
+    <div class="name-box">
+      <label>🏅 Counter:</label>
+      <input class="name-line" type="text" placeholder="Your name here!">
+    </div>
+    <div class="score-banner">
+      <div class="score-label">Completed</div>
+      <div class="score-count"><span id="found-count">0</span><span style="font-size:1.2rem"> / 14</span></div>
+      <div class="score-sub">tasks done</div>
+    </div>
+  </div>
+
+  <div class="instructions">
+    🔢 <strong>How to play:</strong> Find and count things around the house! Each card tells you what number to find or how many things to count. Tap a card when you complete it!
+  </div>
+
+  <div class="section-label" style="color: var(--gold);">🏠 Count Around the House!</div>
+
+  <div class="num-grid" id="num-grid">
+
+    <div class="number-card c1" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">1</div>
+      <div class="card-task">Find 1 front door</div>
+      <div class="card-hint">Knock knock! Who's there?</div>
+    </div>
+
+    <div class="number-card c2" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">2</div>
+      <div class="card-task">Find 2 pillows on a couch or bed</div>
+      <div class="card-hint">Stack them up!</div>
+    </div>
+
+    <div class="number-card c3" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">3</div>
+      <div class="card-task">Find 3 books anywhere</div>
+      <div class="card-hint">Shelf, table, or floor!</div>
+    </div>
+
+    <div class="number-card c4" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">4</div>
+      <div class="card-task">Find a chair with 4 legs</div>
+      <div class="card-hint">Count each leg!</div>
+    </div>
+
+    <div class="number-card c5" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">5</div>
+      <div class="card-task">Find 5 magnets on the fridge</div>
+      <div class="card-hint">Or 5 anything in the kitchen!</div>
+    </div>
+
+    <div class="number-card c6" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">6</div>
+      <div class="card-task">Find 6 toys in your room</div>
+      <div class="card-hint">Line them up in a row!</div>
+    </div>
+
+    <div class="number-card c7" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">7</div>
+      <div class="card-task">Count 7 steps in the house</div>
+      <div class="card-hint">Stairs or walking steps!</div>
+    </div>
+
+    <div class="number-card c8" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">8</div>
+      <div class="card-task">Find 8 shoes in the house</div>
+      <div class="card-hint">Check by the door!</div>
+    </div>
+
+    <div class="number-card c9" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">9</div>
+      <div class="card-task">Find 9 things that are round</div>
+      <div class="card-hint">Plates, balls, clocks…</div>
+    </div>
+
+    <div class="number-card c10" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">10</div>
+      <div class="card-task">Count 10 lights in the house</div>
+      <div class="card-hint">Lamps, ceiling lights, nightlights!</div>
+    </div>
+
+    <div class="number-card c3" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">🔢</div>
+      <div class="card-task">Find a number on the microwave or oven</div>
+      <div class="card-hint">What number do you see?</div>
+    </div>
+
+    <div class="number-card c6" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">🏠</div>
+      <div class="card-task">Find your house number outside</div>
+      <div class="card-hint">What numbers are on your door?</div>
+    </div>
+
+    <div class="number-card c5" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">📺</div>
+      <div class="card-task">Count how many rooms in your house</div>
+      <div class="card-hint">Walk through each one!</div>
+    </div>
+
+    <div class="number-card c2" onclick="toggle(this)">
+      <div class="check-badge"></div>
+      <div class="big-num">🪟</div>
+      <div class="card-task">Count all the windows you can find</div>
+      <div class="card-hint">Don't forget upstairs!</div>
+    </div>
+
+  </div>
+
+  <!-- BONUS -->
+  <div class="bonus-section">
+    <div class="section-label" style="color: var(--gold); margin-bottom: 12px;">⭐ Bonus Number Challenges!</div>
+    <ul class="bonus-list" id="bonus-list">
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="bonus-cb"></div>
+        <span class="bonus-icon">🥄</span>
+        <span class="bonus-name">Count all the spoons in the kitchen drawer</span>
+      </li>
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="bonus-cb"></div>
+        <span class="bonus-icon">🧦</span>
+        <span class="bonus-name">Find a matching pair of socks — that's 2!</span>
+      </li>
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="bonus-cb"></div>
+        <span class="bonus-icon">📅</span>
+        <span class="bonus-name">Find today's date on a calendar</span>
+      </li>
+      <li class="bonus-item" onclick="toggleBonus(this)">
+        <div class="bonus-cb"></div>
+        <span class="bonus-icon">🎲</span>
+        <span class="bonus-name">Find a game or toy with numbers on it</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="congrats" id="congrats">🌟 Amazing Counter! You found them all! 🌟</div>
+
+  <button class="print-btn no-print" onclick="window.print()">🖨️ Print This Page</button>
+  <div class="footer">Numbers are everywhere — keep counting! 🔢</div>
+</div>
+
+<script>
+  function updateScore() {
+    const done = document.querySelectorAll('.number-card.found').length +
+                 document.querySelectorAll('.bonus-item.found').length;
+    document.getElementById('found-count').textContent = done;
+    document.getElementById('congrats').style.display = done === 18 ? 'block' : 'none';
+  }
+
+  function toggle(card) {
+    card.classList.toggle('found');
+    card.querySelector('.check-badge').textContent = card.classList.contains('found') ? '✓' : '';
+    updateScore();
+  }
+
+  function toggleBonus(item) {
+    item.classList.toggle('found');
+    item.querySelector('.bonus-cb').textContent = item.classList.contains('found') ? '✓' : '';
+    updateScore();
+  }
+</script>
+</body>
+</html>

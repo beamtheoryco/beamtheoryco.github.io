@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Detective Hunt!</title>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0F1923;
+    --card: #172231;
+    --border: #1E3148;
+    --hot: #FF6B35;
+    --hot-glow: rgba(255,107,53,0.2);
+    --cold: #00B4D8;
+    --cold-glow: rgba(0,180,216,0.2);
+    --fluffy: #FF85A1;
+    --fluffy-glow: rgba(255,133,161,0.2);
+    --loud: #A8FF3E;
+    --loud-glow: rgba(168,255,62,0.2);
+    --silly: #FFD60A;
+    --silly-glow: rgba(255,214,10,0.2);
+    --mystery: #BF7FFF;
+    --mystery-glow: rgba(191,127,255,0.2);
+    --white: #F0F4FF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  @media print {
+    body { background: white !important; padding: 10px !important; }
+    .page { background: white !important; box-shadow: none !important; border: 2px solid #ddd !important; }
+    .hunt-card { background: #f8f8f8 !important; border: 2px solid #ddd !important; }
+    .card-title, .card-task { color: #111 !important; }
+    .card-hint { color: #555 !important; }
+    .section-chip { color: white !important; }
+    .no-print { display: none !important; }
+    h1, .subtitle { color: #111 !important; }
+    .category-label { color: #333 !important; }
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Subtle grid lines */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  .page {
+    max-width: 680px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding: 32px 24px 28px;
+    background: var(--card);
+    border-radius: 28px;
+    border: 2px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -40px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,214,10,0.12), transparent 70%);
+    pointer-events: none;
+  }
+
+  .magnify { font-size: 3.5rem; display: block; margin-bottom: 6px; animation: swing 3s ease-in-out infinite; }
+
+  @keyframes swing {
+    0%,100% { transform: rotate(-12deg); }
+    50%      { transform: rotate(12deg); }
+  }
+
+  h1 {
+    font-family: 'Righteous', cursive;
+    font-size: 2.6rem;
+    color: var(--silly);
+    letter-spacing: 1px;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    text-shadow: 0 0 30px rgba(255,214,10,0.4);
+  }
+
+  .subtitle {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ── NAME + SCORE ── */
+  .meta-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .name-box {
+    flex: 2; min-width: 180px;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card);
+    border: 2px dashed rgba(255,214,10,0.4);
+    border-radius: 14px;
+    padding: 12px 16px;
+  }
+
+  .name-box label { font-weight: 900; font-size: 0.85rem; color: var(--silly); white-space: nowrap; }
+
+  .name-line {
+    flex: 1; border: none;
+    border-bottom: 2px dotted rgba(255,255,255,0.15);
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem; color: white; outline: none;
+  }
+
+  .name-line::placeholder { color: rgba(255,255,255,0.2); }
+
+  .score-box {
+    flex: 1; min-width: 120px;
+    background: var(--silly);
+    border-radius: 14px;
+    padding: 10px 14px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+
+  .score-box .slbl { font-size: 0.68rem; font-weight: 900; color: rgba(0,0,0,0.45); letter-spacing: 1.5px; text-transform: uppercase; }
+  .score-box .snum { font-family: 'Righteous', cursive; font-size: 2rem; color: #0F1923; line-height: 1.1; }
+
+  /* ── CATEGORY SECTIONS ── */
+  .category { margin-bottom: 24px; }
+
+  .category-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .section-chip {
+    font-family: 'Righteous', cursive;
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 99px;
+    color: #0F1923;
+  }
+
+  .chip-hot      { background: var(--hot);     box-shadow: 0 4px 12px var(--hot-glow); }
+  .chip-cold     { background: var(--cold);    box-shadow: 0 4px 12px var(--cold-glow); }
+  .chip-fluffy   { background: var(--fluffy);  box-shadow: 0 4px 12px var(--fluffy-glow); }
+  .chip-loud     { background: var(--loud);    box-shadow: 0 4px 12px var(--loud-glow); }
+  .chip-silly    { background: var(--silly);   box-shadow: 0 4px 12px var(--silly-glow); }
+  .chip-mystery  { background: var(--mystery); box-shadow: 0 4px 12px var(--mystery-glow); }
+
+  .cat-line { flex: 1; height: 2px; background: var(--border); border-radius: 99px; }
+
+  /* ── HUNT CARDS ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  @media (max-width: 460px) { .cards-grid { grid-template-columns: 1fr; } }
+
+  .hunt-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    padding: 14px 14px 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    transition: transform 0.12s, opacity 0.2s, border-color 0.2s;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hunt-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+
+  /* Category glows on hover */
+  .cat-hot    .hunt-card:hover { border-color: var(--hot);     }
+  .cat-hot    .hunt-card:hover::before { background: var(--hot-glow); opacity: 1; }
+  .cat-cold   .hunt-card:hover { border-color: var(--cold);    }
+  .cat-cold   .hunt-card:hover::before { background: var(--cold-glow); opacity: 1; }
+  .cat-fluffy .hunt-card:hover { border-color: var(--fluffy);  }
+  .cat-fluffy .hunt-card:hover::before { background: var(--fluffy-glow); opacity: 1; }
+  .cat-loud   .hunt-card:hover { border-color: var(--loud);    }
+  .cat-loud   .hunt-card:hover::before { background: var(--loud-glow); opacity: 1; }
+  .cat-silly  .hunt-card:hover { border-color: var(--silly);   }
+  .cat-silly  .hunt-card:hover::before { background: var(--silly-glow); opacity: 1; }
+  .cat-mystery .hunt-card:hover { border-color: var(--mystery); }
+  .cat-mystery .hunt-card:hover::before { background: var(--mystery-glow); opacity: 1; }
+
+  .hunt-card:hover { transform: translateY(-2px); }
+  .hunt-card:active { transform: scale(0.97); }
+
+  .hunt-card.done { opacity: 0.38; }
+  .hunt-card.done .card-task { text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.3); }
+
+  .card-icon { font-size: 2rem; flex-shrink: 0; position: relative; z-index: 1; margin-top: 2px; }
+
+  .card-body { flex: 1; position: relative; z-index: 1; }
+  .card-task { font-weight: 900; font-size: 0.9rem; color: var(--white); line-height: 1.35; margin-bottom: 3px; }
+  .card-hint { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.35); line-height: 1.3; }
+
+  .card-check {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    color: white;
+    transition: all 0.15s;
+    z-index: 1;
+  }
+
+  .hunt-card.done .card-check { background: var(--loud); border-color: var(--loud); color: #0F1923; }
+
+  /* ── BONUS ── */
+  .bonus-wrap {
+    background: var(--card);
+    border: 2px dashed rgba(255,214,10,0.3);
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 24px;
+  }
+
+  .bonus-title {
+    font-family: 'Righteous', cursive;
+    font-size: 1.1rem;
+    color: var(--silly);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .bonus-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .bonus-row {
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; user-select: none;
+  }
+
+  .bonus-cb {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: transparent;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; color: #0F1923;
+    transition: all 0.15s;
+  }
+
+  .bonus-row.done .bonus-cb { background: var(--silly); border-color: var(--silly); }
+  .bonus-row.done .bonus-text { text-decoration: line-through; color: rgba(255,255,255,0.3); }
+
+  .bonus-icon-s { font-size: 1.3rem; }
+  .bonus-text { font-weight: 800; font-size: 0.9rem; color: rgba(255,255,255,0.8); }
+
+  /* ── CONGRATS ── */
+  .congrats {
+    text-align: center;
+    font-family: 'Righteous', cursive;
+    font-size: 1.6rem;
+    color: var(--silly);
+    text-shadow: 0 0 20px rgba(255,214,10,0.5);
+    display: none;
+    margin-bottom: 20px;
+    animation: pop 0.4s ease;
+  }
+
+  @keyframes pop {
+    0%   { transform: scale(0.6); opacity: 0; }
+    80%  { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ── PRINT BTN ── */
+  .print-btn {
+    display: block; width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--silly), var(--hot));
+    color: #0F1923; border: none; border-radius: 16px;
+    font-family: 'Righteous', cursive; font-size: 1.3rem;
+    cursor: pointer; letter-spacing: 1px;
+    transition: opacity .2s, transform .12s;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+  }
+
+  .print-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+  .print-btn:active { transform: translateY(2px); }
+
+  .footer { text-align: center; margin-top: 18px; font-size: 0.78rem; color: rgba(255,255,255,0.18); font-weight: 700; }
+
+  /* Confetti */
+  .cp { position: fixed; border-radius: 2px; pointer-events: none; z-index: 999; animation: cffall linear forwards; }
+  @keyframes cffall { 0%{opacity:1;transform:translateY(-10px) rotate(0)} 100%{opacity:0;transform:translateY(110vh) rotate(720deg)} }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <span class="magnify">🔍</span>
+    <h1>Home Detective Hunt!</h1>
+    <div class="subtitle">All-new challenges · Never done before</div>
+  </div>
+
+  <!-- NAME + SCORE -->
+  <div class="meta-row">
+    <div class="name-box">
+      <label>🕵️ Detective:</label>
+      <input class="name-line" type="text" placeholder="Your name here!">
+    </div>
+    <div class="score-box">
+      <div class="slbl">Cases Solved</div>
+      <div class="snum"><span id="done-count">0</span> / <span id="total-count">24</span></div>
+    </div>
+  </div>
+
+  <!-- 🔥 HOT & WARM THINGS -->
+  <div class="category cat-hot">
+    <div class="category-label">
+      <span class="section-chip chip-hot">🔥 Hot &amp; Warm</span>
+      <div class="cat-line"></div>
+    </div>
+    <div class="cards-grid">
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">☀️</div>
+        <div class="card-body">
+          <div class="card-task">Find a sunny warm spot on the floor</div>
+          <div class="card-hint">Where does the sunlight come through?</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🍞</div>
+        <div class="card-body">
+          <div class="card-task">Find something in the kitchen that makes things hot</div>
+          <div class="card-hint">Toaster, microwave or stove!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🧦</div>
+        <div class="card-body">
+          <div class="card-task">Find the warmest blanket or sock in the house</div>
+          <div class="card-hint">Feel each one — which is the fluffiest?</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">💡</div>
+        <div class="card-body">
+          <div class="card-task">Hold your hand near a lamp — feel the warmth!</div>
+          <div class="card-hint">Don't touch the bulb, just feel the air above</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ❄️ COLD THINGS -->
+  <div class="category cat-cold">
+    <div class="category-label">
+      <span class="section-chip chip-cold">❄️ Cold &amp; Cool</span>
+      <div class="cat-line"></div>
+    </div>
+    <div class="cards-grid">
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🪟</div>
+        <div class="card-body">
+          <div class="card-task">Touch a window — is it cold or warm?</div>
+          <div class="card-hint">Check at least 2 different windows!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🧊</div>
+        <div class="card-body">
+          <div class="card-task">Find 3 cold things in the fridge</div>
+          <div class="card-hint">Name each one out loud!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🪨</div>
+        <div class="card-body">
+          <div class="card-task">Find the coldest floor in the house</div>
+          <div class="card-hint">Walk around in socks — tile vs carpet!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🚰</div>
+        <div class="card-body">
+          <div class="card-task">Find a metal spoon and feel how cold it is</div>
+          <div class="card-hint">Metal feels colder than plastic — why?!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🧸 SOFT & FLUFFY THINGS -->
+  <div class="category cat-fluffy">
+    <div class="category-label">
+      <span class="section-chip chip-fluffy">🧸 Soft &amp; Fluffy</span>
+      <div class="cat-line"></div>
+    </div>
+    <div class="cards-grid">
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🛁</div>
+        <div class="card-body">
+          <div class="card-task">Find the softest towel in the bathroom</div>
+          <div class="card-hint">Rub it on your cheek to check!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🪆</div>
+        <div class="card-body">
+          <div class="card-task">Find 5 stuffed animals or soft toys</div>
+          <div class="card-hint">Line them up in order of size!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🎈</div>
+        <div class="card-body">
+          <div class="card-task">Find something that feels bumpy AND something smooth</div>
+          <div class="card-hint">Compare how different textures feel!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🛋️</div>
+        <div class="card-body">
+          <div class="card-task">Rank the pillows — softest to hardest!</div>
+          <div class="card-hint">Squish each one and decide</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔊 SOUNDS -->
+  <div class="category cat-loud">
+    <div class="category-label">
+      <span class="section-chip chip-loud">🔊 Sounds &amp; Noises</span>
+      <div class="cat-line"></div>
+    </div>
+    <div class="cards-grid">
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🤫</div>
+        <div class="card-body">
+          <div class="card-task">Sit very still for 30 seconds — list every sound you hear</div>
+          <div class="card-hint">Fridge hum? Birds? Pipes? Wind?</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🚪</div>
+        <div class="card-body">
+          <div class="card-task">Find a door that creaks when you open it</div>
+          <div class="card-hint">Open each one slowly and listen!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🥄</div>
+        <div class="card-body">
+          <div class="card-task">Tap 3 different things and compare the sounds</div>
+          <div class="card-hint">Try a cup, a wall, a table — which is loudest?</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🔔</div>
+        <div class="card-body">
+          <div class="card-task">Find something in the house that makes a DING or BEEP</div>
+          <div class="card-hint">Timer, phone, microwave?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🤪 SILLY CHALLENGES -->
+  <div class="category cat-silly">
+    <div class="category-label">
+      <span class="section-chip chip-silly">🤪 Silly Challenges</span>
+      <div class="cat-line"></div>
+    </div>
+    <div class="cards-grid">
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🐧</div>
+        <div class="card-body">
+          <div class="card-task">Waddle like a penguin to the kitchen and back</div>
+          <div class="card-hint">Feet together, arms out — GO!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🪞</div>
+        <div class="card-body">
+          <div class="card-task">Find a mirror and make your funniest face</div>
+          <div class="card-hint">Extra points for a silly noise too!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🦁</div>
+        <div class="card-body">
+          <div class="card-task">Roar like a lion in every room of the house</div>
+          <div class="card-hint">One ROAR per room — no skipping!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🧦</div>
+        <div class="card-body">
+          <div class="card-task">Put a sock on your hand and give it a silly name</div>
+          <div class="card-hint">Your new sock puppet friend!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔮 MYSTERY FINDS -->
+  <div class="category cat-mystery">
+    <div class="category-label">
+      <span class="section-chip chip-mystery">🔮 Mystery Finds</span>
+      <div class="cat-line"></div>
+    </div>
+    <div class="cards-grid">
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🔡</div>
+        <div class="card-body">
+          <div class="card-task">Find something with your first initial on it</div>
+          <div class="card-hint">A book, label, mug — anything!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">👀</div>
+        <div class="card-body">
+          <div class="card-task">Find something that is OLDER than you!</div>
+          <div class="card-hint">Check for a date on books, cans, boxes</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🌑</div>
+        <div class="card-body">
+          <div class="card-task">Find the darkest corner or spot in the whole house</div>
+          <div class="card-hint">A closet, under a bed, behind a couch!</div>
+        </div>
+      </div>
+      <div class="hunt-card" onclick="toggle(this)">
+        <div class="card-check"></div>
+        <div class="card-icon">🫙</div>
+        <div class="card-body">
+          <div class="card-task">Find a container with a lid — what's inside?</div>
+          <div class="card-hint">Jar, box, tin, bowl — surprise!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BONUS -->
+  <div class="bonus-wrap">
+    <div class="bonus-title">⚡ Super Detective Bonus Challenges!</div>
+    <div class="bonus-list" id="bonus-list">
+      <div class="bonus-row" onclick="toggleBonus(this)">
+        <div class="bonus-cb"></div>
+        <span class="bonus-icon-s">👃</span>
+        <span class="bonus-text">Find 3 things in the house that smell nice</span>
+      </div>
+      <div class="bonus-row" onclick="toggleBonus(this)">
+        <div class="bonus-cb"></div>
+        <span class="bonus-icon-s">🧲</span>
+        <span class="bonus-text">Test 5 things — do they stick to the fridge? (magnetic!)</span>
+      </div>
+      <div class="bonus-row" onclick="toggleBonus(this)">
+        <div class="bonus-cb"></div>
+        <span class="bonus-icon-s">🎭</span>
+        <span class="bonus-text">Find 3 things that start with the same letter as your name</span>
+      </div>
+      <div class="bonus-row" onclick="toggleBonus(this)">
+        <div class="bonus-cb"></div>
+        <span class="bonus-icon-s">📏</span>
+        <span class="bonus-text">Find the tallest thing and the tiniest thing in the house</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="congrats" id="congrats">🎉 Master Home Detective! Case Closed! 🔍</div>
+
+  <button class="print-btn no-print" onclick="window.print()">🖨️ Print This Page</button>
+  <div class="footer">Use your eyes, ears, nose AND hands — all senses count! 🕵️</div>
+
+</div><!-- /page -->
+
+<script>
+  const MAIN_TOTAL = 24;
+  const BONUS_TOTAL = 4;
+
+  function updateScore() {
+    const done = document.querySelectorAll('.hunt-card.done').length;
+    const bonusDone = document.querySelectorAll('.bonus-row.done').length;
+    document.getElementById('done-count').textContent = done + bonusDone;
+    document.getElementById('total-count').textContent = MAIN_TOTAL + BONUS_TOTAL;
+    document.getElementById('congrats').style.display = (done + bonusDone === MAIN_TOTAL + BONUS_TOTAL) ? 'block' : 'none';
+    if (done + bonusDone === MAIN_TOTAL + BONUS_TOTAL) spawnConfetti(50);
+  }
+
+  function toggle(card) {
+    card.classList.toggle('done');
+    const cb = card.querySelector('.card-check');
+    cb.textContent = card.classList.contains('done') ? '✓' : '';
+    if (card.classList.contains('done')) spawnConfetti(8);
+    updateScore();
+  }
+
+  function toggleBonus(row) {
+    row.classList.toggle('done');
+    const cb = row.querySelector('.bonus-cb');
+    cb.textContent = row.classList.contains('done') ? '✓' : '';
+    if (row.classList.contains('done')) spawnConfetti(8);
+    updateScore();
+  }
+
+  function spawnConfetti(n) {
+    const colors = ['#FF6B35','#00B4D8','#FF85A1','#A8FF3E','#FFD60A','#BF7FFF'];
+    for (let i = 0; i < n; i++) {
+      setTimeout(() => {
+        const p = document.createElement('div');
+        p.className = 'cp';
+        const size = 6 + Math.random() * 8;
+        p.style.cssText = `
+          left:${Math.random()*100}vw; top:-10px;
+          width:${size}px; height:${size}px;
+          background:${colors[Math.floor(Math.random()*colors.length)]};
+          border-radius:${Math.random()>.5?'50%':'3px'};
+          animation-duration:${1.2+Math.random()*1.8}s;
+          animation-delay:${Math.random()*0.3}s;
+        `;
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 3000);
+      }, i * 30);
+    }
+  }
+
+  updateScore();
+</script>
+</body>
+</html>

@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Sunny's Pet Shop!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #FFF8F0;
+    --gold: #FFD700;
+    --gold-dark: #E6A800;
+    --coral: #FF6B6B;
+    --mint: #4ECDC4;
+    --purple: #A855F7;
+    --blue: #60A5FA;
+    --green: #4ADE80;
+    --peach: #FFA94D;
+    --pink: #F472B6;
+    --dark: #1E1B4B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(160deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    overflow: hidden;
+  }
+
+  .app {
+    background: #FFFBF5;
+    border-radius: 32px;
+    width: 100%;
+    max-width: 480px;
+    min-height: 90vh;
+    max-height: 96vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4), 0 0 0 4px rgba(255,255,255,0.3);
+    position: relative;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  /* ══════════════════════════════════
+     TITLE SCREEN
+  ══════════════════════════════════ */
+  #title-screen {
+    background: linear-gradient(180deg, #667eea, #764ba2);
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .title-pet { font-size: 5rem; animation: bounce 1.5s ease-in-out infinite; }
+
+  @keyframes bounce {
+    0%,100% { transform: translateY(0) rotate(-5deg); }
+    50%      { transform: translateY(-16px) rotate(5deg); }
+  }
+
+  #title-screen h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.8rem;
+    color: white;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+    line-height: 1.1;
+  }
+
+  #title-screen p {
+    color: rgba(255,255,255,0.8);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .start-btn {
+    background: var(--gold);
+    border: none;
+    border-radius: 99px;
+    padding: 18px 48px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--dark);
+    cursor: pointer;
+    box-shadow: 0 8px 0 var(--gold-dark), 0 12px 20px rgba(0,0,0,0.2);
+    transition: transform .12s, box-shadow .12s;
+    margin-top: 8px;
+  }
+
+  .start-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--gold-dark); }
+
+  /* ══════════════════════════════════
+     MAIN GAME SCREEN
+  ══════════════════════════════════ */
+  #game-screen { background: #FFFBF5; }
+
+  /* Top bar */
+  .top-bar {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    padding: 12px 16px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .coin-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 99px;
+    padding: 6px 14px;
+  }
+
+  .coin-icon { font-size: 1.3rem; }
+  .coin-count { font-family: 'Fredoka One', cursive; font-size: 1.3rem; color: var(--gold); text-shadow: 1px 1px 0 rgba(0,0,0,0.2); }
+
+  .level-display {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.9);
+    text-align: center;
+  }
+
+  .level-display span { color: var(--gold); }
+
+  .shop-btn {
+    background: var(--gold);
+    border: none;
+    border-radius: 99px;
+    padding: 7px 16px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: var(--dark);
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--gold-dark);
+    transition: transform .1s;
+  }
+
+  .shop-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--gold-dark); }
+
+  /* XP bar */
+  .xp-wrap { padding: 8px 16px 4px; flex-shrink: 0; }
+  .xp-label { font-size: 0.72rem; font-weight: 900; color: #aaa; letter-spacing: 1px; margin-bottom: 4px; }
+  .xp-bar { height: 10px; background: #E5E7EB; border-radius: 99px; overflow: hidden; }
+  .xp-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--mint), var(--blue)); transition: width .5s ease; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    border-bottom: 3px solid #F3F4F6;
+    flex-shrink: 0;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px 4px;
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    color: #9CA3AF;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+    transition: all .15s;
+  }
+
+  .tab.active { color: var(--purple); border-bottom-color: var(--purple); }
+
+  /* Tab content */
+  .tab-content { display: none; flex: 1; overflow-y: auto; }
+  .tab-content.active { display: block; }
+
+  /* ── FEED TAB ── */
+  .feed-area {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .pet-stage {
+    background: linear-gradient(160deg, #EEF2FF, #FDF4FF);
+    border-radius: 24px;
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    border: 3px solid #E0E7FF;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .active-pet { font-size: 5rem; cursor: pointer; transition: transform .1s; user-select: none; position: relative; z-index: 1; }
+  .active-pet:active { transform: scale(0.88); }
+
+  .pet-name { font-family: 'Fredoka One', cursive; font-size: 1.4rem; color: var(--dark); }
+
+  .hearts-row { display: flex; gap: 4px; }
+  .heart { font-size: 1.2rem; transition: transform .2s; }
+  .heart.full { filter: none; }
+  .heart.empty { filter: grayscale(1) opacity(0.3); }
+
+  .tap-hint {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #A78BFA;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    animation: pulse-hint 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-hint { 0%,100%{opacity:.5} 50%{opacity:1} }
+
+  /* Food grid */
+  .food-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: var(--dark);
+    align-self: flex-start;
+  }
+
+  .food-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+
+  .food-btn {
+    background: white;
+    border: 3px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 10px 4px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transition: transform .1s, border-color .1s;
+    position: relative;
+  }
+
+  .food-btn:active { transform: scale(0.93); }
+  .food-btn.locked { opacity: 0.4; cursor: not-allowed; }
+  .food-btn .food-emoji { font-size: 1.8rem; }
+  .food-btn .food-pts { font-size: 0.65rem; font-weight: 900; color: var(--mint); }
+  .food-btn .food-lock { position: absolute; top: 4px; right: 4px; font-size: 0.7rem; }
+
+  /* ── COLLECT TAB ── */
+  .collect-area { padding: 16px; }
+
+  .collect-header {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: var(--dark);
+    margin-bottom: 12px;
+  }
+
+  .collect-header span { color: var(--purple); }
+
+  .pets-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .pet-card {
+    background: white;
+    border: 3px solid #E5E7EB;
+    border-radius: 20px;
+    padding: 14px 8px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: transform .12s, border-color .12s;
+    position: relative;
+  }
+
+  .pet-card:active { transform: scale(0.95); }
+  .pet-card.owned { border-color: var(--green); background: #F0FDF4; }
+  .pet-card.active-pet-card { border-color: var(--purple); background: #FAF5FF; box-shadow: 0 0 0 3px rgba(168,85,247,0.2); }
+  .pet-card.locked-pet { filter: grayscale(0.8); opacity: 0.55; cursor: not-allowed; }
+
+  .pet-card .pet-emoji { font-size: 2.4rem; }
+  .pet-card .pet-card-name { font-family: 'Fredoka One', cursive; font-size: 0.8rem; color: var(--dark); text-align: center; }
+  .pet-card .pet-cost { font-size: 0.7rem; font-weight: 900; color: var(--gold-dark); }
+  .pet-card .pet-badge {
+    position: absolute; top: 5px; right: 5px;
+    font-size: 0.65rem; font-weight: 900;
+    background: var(--green); color: white;
+    border-radius: 99px; padding: 2px 6px;
+  }
+
+  .pet-card.active-pet-card .pet-badge { background: var(--purple); }
+
+  /* ── MINI GAMES TAB ── */
+  .minigames-area { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+  .minigame-card {
+    background: white;
+    border: 3px solid #E5E7EB;
+    border-radius: 20px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: transform .12s, border-color .12s;
+  }
+
+  .minigame-card:hover { border-color: var(--purple); transform: translateY(-2px); }
+  .minigame-card:active { transform: scale(0.97); }
+
+  .mg-icon { font-size: 2.6rem; flex-shrink: 0; }
+  .mg-info { flex: 1; }
+  .mg-name { font-family: 'Fredoka One', cursive; font-size: 1.1rem; color: var(--dark); }
+  .mg-desc { font-size: 0.78rem; font-weight: 700; color: #9CA3AF; margin-top: 2px; }
+  .mg-reward { font-size: 0.78rem; font-weight: 900; color: var(--gold-dark); margin-top: 4px; }
+  .mg-play { font-size: 1.5rem; }
+
+  /* ══════════════════════════════════
+     MINI GAME SCREENS
+  ══════════════════════════════════ */
+  .mg-screen {
+    background: #FFFBF5;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .mg-topbar {
+    background: linear-gradient(90deg, var(--coral), #FF8C42);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .mg-topbar h2 { font-family: 'Fredoka One', cursive; font-size: 1.2rem; color: white; }
+  .mg-back { background: rgba(255,255,255,0.25); border: none; border-radius: 99px; padding: 6px 14px; font-family: 'Fredoka One', cursive; font-size: 0.9rem; color: white; cursor: pointer; }
+  .mg-timer { font-family: 'Fredoka One', cursive; font-size: 1.3rem; color: white; }
+
+  .mg-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+  /* ── TAP GAME ── */
+  .tap-target {
+    font-size: 6rem;
+    cursor: pointer;
+    user-select: none;
+    animation: wobble 2s ease-in-out infinite;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
+    transition: transform .08s;
+  }
+
+  .tap-target:active { transform: scale(0.82) rotate(-10deg) !important; }
+  @keyframes wobble { 0%,100%{transform:rotate(-8deg) scale(1)} 50%{transform:rotate(8deg) scale(1.08)} }
+
+  .tap-score { font-family: 'Fredoka One', cursive; font-size: 2.4rem; color: var(--dark); }
+  .tap-sub { font-size: 0.85rem; font-weight: 800; color: #9CA3AF; }
+
+  .float-text {
+    position: fixed;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    color: var(--gold);
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+    pointer-events: none;
+    z-index: 999;
+    animation: floatUp .9s ease-out forwards;
+  }
+
+  @keyframes floatUp { 0%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-70px)} }
+
+  /* ── MEMORY GAME ── */
+  .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
+
+  .mem-card {
+    aspect-ratio: 1;
+    border-radius: 14px;
+    border: 3px solid #E5E7EB;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    cursor: pointer;
+    user-select: none;
+    transition: transform .2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mem-card .front { display: none; }
+  .mem-card .back { color: rgba(255,255,255,0.2); font-size: 1.5rem; }
+  .mem-card.flipped .front { display: flex; align-items: center; justify-content: center; position: absolute; inset: 0; background: white; font-size: 2rem; border-radius: 11px; }
+  .mem-card.flipped .back { display: none; }
+  .mem-card.matched { border-color: var(--green); background: #F0FDF4; }
+  .mem-card.matched .front { background: #F0FDF4; }
+
+  /* ── COLOR QUIZ ── */
+  .quiz-question { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: var(--dark); text-align: center; }
+  .color-swatch { width: 120px; height: 120px; border-radius: 50%; border: 5px solid rgba(0,0,0,0.1); margin: 8px auto; box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+  .quiz-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+
+  .quiz-btn {
+    background: white;
+    border: 3px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 14px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: var(--dark);
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .quiz-btn:active { transform: scale(0.95); }
+  .quiz-btn.correct-ans { background: #F0FDF4; border-color: var(--green); color: var(--green); }
+  .quiz-btn.wrong-ans { background: #FEF2F2; border-color: var(--coral); color: var(--coral); text-decoration: line-through; }
+
+  .quiz-streak { font-family: 'Fredoka One', cursive; font-size: 1rem; color: var(--purple); }
+
+  /* ══════════════════════════════════
+     SHOP SCREEN
+  ══════════════════════════════════ */
+  #shop-screen {
+    background: #FFFBF5;
+    flex-direction: column;
+  }
+
+  .shop-topbar {
+    background: linear-gradient(90deg, var(--gold), var(--peach));
+    padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .shop-topbar h2 { font-family: 'Fredoka One', cursive; font-size: 1.3rem; color: var(--dark); }
+  .shop-back { background: rgba(0,0,0,0.12); border: none; border-radius: 99px; padding: 6px 14px; font-family: 'Fredoka One', cursive; font-size: 0.9rem; color: var(--dark); cursor: pointer; }
+  .shop-coins { font-family: 'Fredoka One', cursive; font-size: 1.1rem; color: var(--dark); }
+
+  .shop-body { flex: 1; overflow-y: auto; padding: 16px; }
+
+  .shop-section { margin-bottom: 20px; }
+  .shop-section-title { font-family: 'Fredoka One', cursive; font-size: 1.1rem; color: var(--dark); margin-bottom: 10px; }
+
+  .shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+  .shop-item {
+    background: white;
+    border: 3px solid #E5E7EB;
+    border-radius: 18px;
+    padding: 12px 8px 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer;
+    transition: all .12s;
+  }
+
+  .shop-item:active { transform: scale(0.95); }
+  .shop-item.bought { border-color: var(--green); background: #F0FDF4; cursor: default; }
+  .shop-item .item-emoji { font-size: 2.2rem; }
+  .shop-item .item-name { font-family: 'Fredoka One', cursive; font-size: 0.78rem; color: var(--dark); text-align: center; }
+  .shop-item .item-cost { font-size: 0.72rem; font-weight: 900; color: var(--gold-dark); }
+  .shop-item .item-bought { font-size: 0.7rem; font-weight: 900; color: var(--green); }
+
+  /* ══════════════════════════════════
+     RESULT OVERLAY
+  ══════════════════════════════════ */
+  .result-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 100;
+    padding: 24px;
+  }
+
+  .result-overlay.show { display: flex; }
+
+  .result-box {
+    background: white;
+    border-radius: 28px;
+    padding: 32px 28px;
+    text-align: center;
+    max-width: 320px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: popIn .35s ease;
+  }
+
+  @keyframes popIn { from{transform:scale(0.7);opacity:0} to{transform:scale(1);opacity:1} }
+
+  .result-emoji { font-size: 4rem; margin-bottom: 8px; }
+  .result-title { font-family: 'Fredoka One', cursive; font-size: 1.8rem; color: var(--dark); margin-bottom: 6px; }
+  .result-coins { font-family: 'Fredoka One', cursive; font-size: 1.3rem; color: var(--gold-dark); margin-bottom: 20px; }
+  .result-btn { background: linear-gradient(135deg, var(--purple), var(--blue)); border: none; border-radius: 99px; padding: 14px 36px; font-family: 'Fredoka One', cursive; font-size: 1.2rem; color: white; cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,0.15); }
+
+  /* Confetti */
+  .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 200; }
+  .cp { position: absolute; border-radius: 2px; animation: cf linear forwards; }
+  @keyframes cf { 0%{transform:translateY(-10px) rotate(0)} 100%{transform:translateY(110vh) rotate(720deg); opacity:0} }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--dark); color: white;
+    font-family: 'Fredoka One', cursive; font-size: 1rem;
+    padding: 10px 24px; border-radius: 99px;
+    z-index: 300; opacity: 0;
+    transition: opacity .25s;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ══ TITLE ══ -->
+<div class="app">
+<div id="title-screen" class="screen active">
+  <div class="title-pet">🐣</div>
+  <h1>Sunny's<br>Pet Shop!</h1>
+  <p>Feed your pets, collect new friends,<br>play mini games & earn golden coins! 🪙</p>
+  <button class="start-btn" onclick="startGame()">▶ Start Playing!</button>
+</div>
+
+<!-- ══ MAIN GAME ══ -->
+<div id="game-screen" class="screen">
+  <div class="top-bar">
+    <div class="coin-display">
+      <span class="coin-icon">🪙</span>
+      <span class="coin-count" id="coin-count">0</span>
+    </div>
+    <div class="level-display">Level <span id="level-num">1</span></div>
+    <button class="shop-btn" onclick="openShop()">🛍️ Shop</button>
+  </div>
+
+  <div class="xp-wrap">
+    <div class="xp-label">XP TO NEXT LEVEL ✦ <span id="xp-label">0 / 100</span></div>
+    <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('feed')">🍎 Feed</div>
+    <div class="tab" onclick="switchTab('collect')">🐾 Collect</div>
+    <div class="tab" onclick="switchTab('games')">🎮 Games</div>
+  </div>
+
+  <!-- FEED TAB -->
+  <div class="tab-content active" id="tab-feed">
+    <div class="feed-area">
+      <div class="pet-stage">
+        <div class="active-pet" id="active-pet-emoji" onclick="petTap()">🐣</div>
+        <div class="pet-name" id="active-pet-name">Sunny</div>
+        <div class="hearts-row" id="hearts-row"></div>
+        <div class="tap-hint">Tap me! 👆</div>
+      </div>
+
+      <div class="food-label">🍽️ Choose a snack!</div>
+      <div class="food-grid" id="food-grid"></div>
+    </div>
+  </div>
+
+  <!-- COLLECT TAB -->
+  <div class="tab-content" id="tab-collect">
+    <div class="collect-area">
+      <div class="collect-header">Your Pets <span id="owned-count">1</span> / <span id="total-pets">12</span> 🐾</div>
+      <div class="pets-grid" id="pets-grid"></div>
+    </div>
+  </div>
+
+  <!-- GAMES TAB -->
+  <div class="tab-content" id="tab-games">
+    <div class="minigames-area">
+      <div class="minigame-card" onclick="startTapGame()">
+        <div class="mg-icon">🌟</div>
+        <div class="mg-info">
+          <div class="mg-name">Star Catcher!</div>
+          <div class="mg-desc">Tap the star as many times as you can!</div>
+          <div class="mg-reward">🪙 Up to 40 coins</div>
+        </div>
+        <div class="mg-play">▶</div>
+      </div>
+      <div class="minigame-card" onclick="startMemoryGame()">
+        <div class="mg-icon">🧠</div>
+        <div class="mg-info">
+          <div class="mg-name">Memory Match!</div>
+          <div class="mg-desc">Find all the matching pairs!</div>
+          <div class="mg-reward">🪙 Up to 50 coins</div>
+        </div>
+        <div class="mg-play">▶</div>
+      </div>
+      <div class="minigame-card" onclick="startColorQuiz()">
+        <div class="mg-icon">🎨</div>
+        <div class="mg-info">
+          <div class="mg-name">Color Quiz!</div>
+          <div class="mg-desc">Can you name all the colors?</div>
+          <div class="mg-reward">🪙 Up to 60 coins</div>
+        </div>
+        <div class="mg-play">▶</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAP GAME ══ -->
+<div id="tap-screen" class="screen mg-screen">
+  <div class="mg-topbar">
+    <button class="mg-back" onclick="exitMinigame()">← Back</button>
+    <h2>⭐ Star Catcher!</h2>
+    <div class="mg-timer" id="tap-timer">20s</div>
+  </div>
+  <div class="mg-body">
+    <div class="tap-score" id="tap-score">0</div>
+    <div class="tap-sub">taps!</div>
+    <div class="tap-target" id="tap-target" onclick="tapStar(event)">⭐</div>
+    <div style="font-size:.85rem;font-weight:800;color:#aaa;text-align:center">Tap the star as fast as you can!</div>
+  </div>
+</div>
+
+<!-- ══ MEMORY GAME ══ -->
+<div id="memory-screen" class="screen mg-screen">
+  <div class="mg-topbar" style="background:linear-gradient(90deg,#4ECDC4,#60A5FA)">
+    <button class="mg-back" onclick="exitMinigame()">← Back</button>
+    <h2>🧠 Memory Match!</h2>
+    <div class="mg-timer" id="mem-pairs">0/8</div>
+  </div>
+  <div class="mg-body">
+    <div class="memory-grid" id="memory-grid"></div>
+  </div>
+</div>
+
+<!-- ══ COLOR QUIZ ══ -->
+<div id="quiz-screen" class="screen mg-screen">
+  <div class="mg-topbar" style="background:linear-gradient(90deg,#A855F7,#F472B6)">
+    <button class="mg-back" onclick="exitMinigame()">← Back</button>
+    <h2>🎨 Color Quiz!</h2>
+    <div class="mg-timer" id="quiz-num">1/10</div>
+  </div>
+  <div class="mg-body">
+    <div class="quiz-question" id="quiz-question">What color is this?</div>
+    <div class="color-swatch" id="color-swatch"></div>
+    <div class="quiz-streak" id="quiz-streak">🔥 Streak: 0</div>
+    <div class="quiz-choices" id="quiz-choices"></div>
+  </div>
+</div>
+
+<!-- ══ SHOP ══ -->
+<div id="shop-screen" class="screen">
+  <div class="shop-topbar">
+    <button class="shop-back" onclick="closeShop()">← Back</button>
+    <h2>🛍️ Pet Shop</h2>
+    <div class="shop-coins">🪙 <span id="shop-coin-count">0</span></div>
+  </div>
+  <div class="shop-body">
+    <div class="shop-section">
+      <div class="shop-section-title">🍓 Special Foods</div>
+      <div class="shop-grid" id="shop-foods"></div>
+    </div>
+    <div class="shop-section">
+      <div class="shop-section-title">🎀 Pet Accessories</div>
+      <div class="shop-grid" id="shop-accessories"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Result Overlay -->
+<div class="result-overlay" id="result-overlay">
+  <div class="result-box">
+    <div class="result-emoji" id="result-emoji">🎉</div>
+    <div class="result-title" id="result-title">Amazing!</div>
+    <div class="result-coins" id="result-coins">+30 🪙</div>
+    <button class="result-btn" onclick="closeResult()">Awesome! ✨</button>
+  </div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+<div class="toast" id="toast"></div>
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let coins = 10;
+let xp = 0;
+let level = 1;
+let xpToNext = 100;
+let activePet = 0;
+let petHearts = [5,5,5,5,5,5,5,5,5,5,5,5];
+
+const PETS = [
+  { emoji:'🐣', name:'Sunny',    cost:0,    owned:true  },
+  { emoji:'🐶', name:'Biscuit',  cost:30,   owned:false },
+  { emoji:'🐱', name:'Mochi',    cost:30,   owned:false },
+  { emoji:'🐰', name:'Cotton',   cost:50,   owned:false },
+  { emoji:'🐸', name:'Hoppy',    cost:50,   owned:false },
+  { emoji:'🦊', name:'Rusty',    cost:80,   owned:false },
+  { emoji:'🐼', name:'Bamboo',   cost:80,   owned:false },
+  { emoji:'🦋', name:'Flutter',  cost:100,  owned:false },
+  { emoji:'🐨', name:'Cloudy',   cost:120,  owned:false },
+  { emoji:'🦄', name:'Sparkle',  cost:150,  owned:false },
+  { emoji:'🐲', name:'Blaze',    cost:200,  owned:false },
+  { emoji:'🌟', name:'Nova',     cost:250,  owned:false },
+];
+
+const FOODS = [
+  { emoji:'🍎', name:'Apple',   pts:5,  xp:8,   cost:0   },
+  { emoji:'🍌', name:'Banana',  pts:5,  xp:8,   cost:0   },
+  { emoji:'🥕', name:'Carrot',  pts:6,  xp:10,  cost:0   },
+  { emoji:'🍓', name:'Berry',   pts:8,  xp:12,  cost:15  },
+  { emoji:'🧁', name:'Cupcake', pts:10, xp:15,  cost:20  },
+  { emoji:'🍕', name:'Pizza',   pts:12, xp:18,  cost:25  },
+  { emoji:'🍦', name:'Ice Cream',pts:15,xp:22,  cost:35  },
+  { emoji:'🌮', name:'Taco',    pts:18, xp:25,  cost:45  },
+];
+
+const SHOP_FOODS = [
+  { emoji:'🍓', name:'Berry',    cost:15, id:'berry'    },
+  { emoji:'🧁', name:'Cupcake',  cost:20, id:'cupcake'  },
+  { emoji:'🍕', name:'Pizza',    cost:25, id:'pizza'    },
+  { emoji:'🍦', name:'Ice Cream',cost:35, id:'icecream' },
+  { emoji:'🌮', name:'Taco',     cost:45, id:'taco'     },
+  { emoji:'🎂', name:'Birthday Cake',cost:60, id:'cake' },
+];
+
+const ACCESSORIES = [
+  { emoji:'🎩', name:'Top Hat',    cost:40,  id:'hat1'  },
+  { emoji:'👑', name:'Crown',      cost:60,  id:'crown' },
+  { emoji:'🎀', name:'Bow',        cost:30,  id:'bow'   },
+  { emoji:'🕶️', name:'Sunglasses', cost:35,  id:'sunnies'},
+  { emoji:'🌈', name:'Rainbow',    cost:80,  id:'rainbow'},
+  { emoji:'⚡', name:'Lightning',  cost:100, id:'bolt'  },
+];
+
+let unlockedFoods = new Set([0,1,2]);
+let boughtShopItems = new Set();
+let currentScreen = 'game-screen';
+let tapInterval = null;
+let tapCount = 0;
+let tapTimeLeft = 0;
+let memFlipped = [];
+let memMatched = 0;
+let memLocked = false;
+let quizQ = 0;
+let quizStreak = 0;
+let quizCoinsEarned = 0;
+let quizAnswered = false;
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+function startGame() {
+  showScreen('game-screen');
+  renderAll();
+}
+
+function renderAll() {
+  renderTopBar();
+  renderFeedTab();
+  renderCollectTab();
+  renderShopScreen();
+}
+
+function renderTopBar() {
+  document.getElementById('coin-count').textContent = coins;
+  document.getElementById('level-num').textContent = level;
+  document.getElementById('xp-label').textContent = `${xp} / ${xpToNext}`;
+  document.getElementById('xp-fill').style.width = `${Math.min(100,(xp/xpToNext)*100)}%`;
+  document.getElementById('shop-coin-count').textContent = coins;
+}
+
+// ═══════════════════════════════════════
+// FEED TAB
+// ═══════════════════════════════════════
+function renderFeedTab() {
+  const pet = PETS[activePet];
+  document.getElementById('active-pet-emoji').textContent = pet.emoji;
+  document.getElementById('active-pet-name').textContent = pet.name;
+  renderHearts();
+  renderFoodGrid();
+}
+
+function renderHearts() {
+  const h = petHearts[activePet];
+  const row = document.getElementById('hearts-row');
+  row.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const el = document.createElement('span');
+    el.className = 'heart ' + (i < h ? 'full' : 'empty');
+    el.textContent = '❤️';
+    row.appendChild(el);
+  }
+}
+
+function renderFoodGrid() {
+  const grid = document.getElementById('food-grid');
+  grid.innerHTML = '';
+  FOODS.forEach((f, i) => {
+    const unlocked = unlockedFoods.has(i);
+    const btn = document.createElement('div');
+    btn.className = 'food-btn' + (unlocked ? '' : ' locked');
+    btn.innerHTML = `
+      <div class="food-emoji">${f.emoji}</div>
+      <div class="food-pts">+${f.pts}pts</div>
+      ${!unlocked ? `<div class="food-lock">🔒</div>` : ''}
+    `;
+    if (unlocked) btn.onclick = () => feedPet(i);
+    else btn.onclick = () => showToast(`Buy ${f.name} in the Shop! 🛍️`);
+    grid.appendChild(btn);
+  });
+}
+
+function petTap() {
+  gainCoins(1);
+  gainXP(2);
+  const emoji = document.getElementById('active-pet-emoji');
+  emoji.style.transform = 'scale(0.85) rotate(-10deg)';
+  setTimeout(() => emoji.style.transform = '', 150);
+  spawnFloat(emoji, '+1 🪙');
+}
+
+function feedPet(foodIdx) {
+  const f = FOODS[foodIdx];
+  const hearts = petHearts[activePet];
+  if (hearts < 5) petHearts[activePet] = Math.min(5, hearts + 1);
+  gainCoins(f.pts);
+  gainXP(f.xp);
+  renderHearts();
+
+  const emoji = document.getElementById('active-pet-emoji');
+  spawnFloat(emoji, `+${f.pts} 🪙`);
+
+  // Animate pet happy
+  emoji.style.transform = 'scale(1.25) rotate(10deg)';
+  setTimeout(() => emoji.style.transform = '', 300);
+}
+
+// ═══════════════════════════════════════
+// COLLECT TAB
+// ═══════════════════════════════════════
+function renderCollectTab() {
+  const owned = PETS.filter(p => p.owned).length;
+  document.getElementById('owned-count').textContent = owned;
+  document.getElementById('total-pets').textContent = PETS.length;
+
+  const grid = document.getElementById('pets-grid');
+  grid.innerHTML = '';
+  PETS.forEach((p, i) => {
+    const card = document.createElement('div');
+    const isActive = i === activePet;
+    const locked = !p.owned && p.cost > coins;
+    card.className = 'pet-card' + (p.owned ? ' owned' : '') + (isActive ? ' active-pet-card' : '') + (locked && !p.owned ? ' locked-pet' : '');
+
+    card.innerHTML = `
+      <div class="pet-emoji">${p.emoji}</div>
+      <div class="pet-card-name">${p.name}</div>
+      ${p.owned ? `<div class="pet-badge">${isActive ? '★ Active' : '✓ Owned'}</div>` : `<div class="pet-cost">🪙 ${p.cost}</div>`}
+    `;
+
+    card.onclick = () => {
+      if (p.owned) {
+        activePet = i;
+        renderFeedTab();
+        renderCollectTab();
+        showToast(`${p.name} is now your active pet! ${p.emoji}`);
+      } else if (coins >= p.cost) {
+        coins -= p.cost;
+        p.owned = true;
+        petHearts[i] = 5;
+        activePet = i;
+        renderAll();
+        spawnConfetti(30);
+        showToast(`You got ${p.name}! ${p.emoji} 🎉`);
+      } else {
+        showToast(`Need ${p.cost - coins} more coins! 🪙`);
+      }
+    };
+
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════
+// SHOP
+// ═══════════════════════════════════════
+function renderShopScreen() {
+  document.getElementById('shop-coin-count').textContent = coins;
+
+  const foodGrid = document.getElementById('shop-foods');
+  foodGrid.innerHTML = '';
+  SHOP_FOODS.forEach(item => {
+    const bought = boughtShopItems.has(item.id);
+    const div = document.createElement('div');
+    div.className = 'shop-item' + (bought ? ' bought' : '');
+    div.innerHTML = `
+      <div class="item-emoji">${item.emoji}</div>
+      <div class="item-name">${item.name}</div>
+      ${bought ? '<div class="item-bought">✓ Owned</div>' : `<div class="item-cost">🪙 ${item.cost}</div>`}
+    `;
+    if (!bought) div.onclick = () => buyShopItem(item);
+    foodGrid.appendChild(div);
+  });
+
+  const accGrid = document.getElementById('shop-accessories');
+  accGrid.innerHTML = '';
+  ACCESSORIES.forEach(item => {
+    const bought = boughtShopItems.has(item.id);
+    const div = document.createElement('div');
+    div.className = 'shop-item' + (bought ? ' bought' : '');
+    div.innerHTML = `
+      <div class="item-emoji">${item.emoji}</div>
+      <div class="item-name">${item.name}</div>
+      ${bought ? '<div class="item-bought">✓ Owned</div>' : `<div class="item-cost">🪙 ${item.cost}</div>`}
+    `;
+    if (!bought) div.onclick = () => buyShopItem(item);
+    accGrid.appendChild(div);
+  });
+}
+
+function buyShopItem(item) {
+  if (coins < item.cost) { showToast(`Need ${item.cost - coins} more coins! 🪙`); return; }
+  coins -= item.cost;
+  boughtShopItems.add(item.id);
+
+  // Unlock food if applicable
+  const foodMap = { berry:3, cupcake:4, pizza:5, icecream:6, taco:7 };
+  if (foodMap[item.id] !== undefined) unlockedFoods.add(foodMap[item.id]);
+
+  renderAll();
+  showToast(`Got ${item.name}! ${item.emoji}`);
+  spawnConfetti(15);
+}
+
+function openShop() { showScreen('shop-screen'); renderShopScreen(); }
+function closeShop() { showScreen('game-screen'); }
+
+// ═══════════════════════════════════════
+// TAP MINI GAME
+// ═══════════════════════════════════════
+function startTapGame() {
+  tapCount = 0;
+  tapTimeLeft = 20;
+  document.getElementById('tap-score').textContent = '0';
+  document.getElementById('tap-timer').textContent = '20s';
+  const targets = ['⭐','🌟','💫','✨'];
+  document.getElementById('tap-target').textContent = targets[Math.floor(Math.random()*targets.length)];
+  showScreen('tap-screen');
+
+  tapInterval = setInterval(() => {
+    tapTimeLeft--;
+    document.getElementById('tap-timer').textContent = tapTimeLeft + 's';
+    if (tapTimeLeft <= 0) {
+      clearInterval(tapInterval);
+      const earned = Math.min(40, Math.floor(tapCount * 1.5));
+      gainCoins(earned);
+      gainXP(tapCount * 3);
+      setTimeout(() => {
+        exitMinigame();
+        showResult('⭐', 'Star Catcher!', `You tapped ${tapCount} times!`, earned);
+      }, 300);
+    }
+  }, 1000);
+}
+
+function tapStar(e) {
+  if (tapTimeLeft <= 0) return;
+  tapCount++;
+  document.getElementById('tap-score').textContent = tapCount;
+  // Random rotation
+  const t = document.getElementById('tap-target');
+  t.style.transform = `rotate(${Math.random()*40-20}deg) scale(${0.9+Math.random()*0.2})`;
+  setTimeout(() => t.style.transform = '', 100);
+  // Float text
+  const ft = document.createElement('div');
+  ft.className = 'float-text';
+  ft.textContent = '+1';
+  ft.style.left = (e.clientX - 10) + 'px';
+  ft.style.top  = (e.clientY - 20) + 'px';
+  document.body.appendChild(ft);
+  setTimeout(() => ft.remove(), 900);
+}
+
+// ═══════════════════════════════════════
+// MEMORY MINI GAME
+// ═══════════════════════════════════════
+const MEM_EMOJIS = ['🐶','🐱','🐰','🦊','🐸','🐼','🦋','🌸'];
+
+function startMemoryGame() {
+  memFlipped = [];
+  memMatched = 0;
+  memLocked = false;
+  document.getElementById('mem-pairs').textContent = '0/8';
+  showScreen('memory-screen');
+
+  const cards = [...MEM_EMOJIS, ...MEM_EMOJIS].sort(() => Math.random() - 0.5);
+  const grid = document.getElementById('memory-grid');
+  grid.innerHTML = '';
+
+  cards.forEach((emoji, i) => {
+    const card = document.createElement('div');
+    card.className = 'mem-card';
+    card.dataset.emoji = emoji;
+    card.dataset.idx = i;
+    card.innerHTML = `<div class="front">${emoji}</div><div class="back">?</div>`;
+    card.onclick = () => flipCard(card);
+    grid.appendChild(card);
+  });
+}
+
+function flipCard(card) {
+  if (memLocked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+  card.classList.add('flipped');
+  memFlipped.push(card);
+
+  if (memFlipped.length === 2) {
+    memLocked = true;
+    const [a, b] = memFlipped;
+    if (a.dataset.emoji === b.dataset.emoji) {
+      a.classList.add('matched'); b.classList.add('matched');
+      memMatched++;
+      document.getElementById('mem-pairs').textContent = `${memMatched}/8`;
+      memFlipped = [];
+      memLocked = false;
+      gainCoins(5); gainXP(10);
+
+      if (memMatched === 8) {
+        const earned = 50;
+        gainCoins(earned);
+        gainXP(60);
+        setTimeout(() => {
+          exitMinigame();
+          showResult('🧠', 'Memory Master!', 'You matched all 8 pairs!', earned + 40);
+        }, 600);
+      }
+    } else {
+      setTimeout(() => {
+        a.classList.remove('flipped'); b.classList.remove('flipped');
+        memFlipped = [];
+        memLocked = false;
+      }, 900);
+    }
+  }
+}
+
+// ═══════════════════════════════════════
+// COLOR QUIZ
+// ═══════════════════════════════════════
+const COLORS_QUIZ = [
+  { color:'#FF4D6D', name:'Red'    },
+  { color:'#FF8C42', name:'Orange' },
+  { color:'#FFD166', name:'Yellow' },
+  { color:'#4ADE80', name:'Green'  },
+  { color:'#60A5FA', name:'Blue'   },
+  { color:'#A855F7', name:'Purple' },
+  { color:'#F472B6', name:'Pink'   },
+  { color:'#FFFFFF', name:'White', border:true },
+  { color:'#1E1B4B', name:'Dark Blue' },
+  { color:'#4ECDC4', name:'Teal'   },
+  { color:'#E6A800', name:'Gold'   },
+  { color:'#FF6B6B', name:'Coral'  },
+];
+
+function startColorQuiz() {
+  quizQ = 0;
+  quizStreak = 0;
+  quizCoinsEarned = 0;
+  quizAnswered = false;
+  showScreen('quiz-screen');
+  loadQuizQuestion();
+}
+
+function loadQuizQuestion() {
+  if (quizQ >= 10) {
+    setTimeout(() => {
+      exitMinigame();
+      showResult('🎨', 'Color Expert!', `Streak of ${quizStreak}! Amazing!`, quizCoinsEarned);
+    }, 400);
+    return;
+  }
+
+  quizAnswered = false;
+  document.getElementById('quiz-num').textContent = `${quizQ+1}/10`;
+  document.getElementById('quiz-streak').textContent = `🔥 Streak: ${quizStreak}`;
+
+  // Pick random correct color
+  const correct = COLORS_QUIZ[Math.floor(Math.random() * COLORS_QUIZ.length)];
+  document.getElementById('color-swatch').style.background = correct.color;
+  document.getElementById('color-swatch').style.border = correct.border ? '4px solid #ccc' : '4px solid rgba(0,0,0,0.08)';
+  document.getElementById('quiz-question').textContent = 'What color is this?';
+
+  // 4 choices incl correct
+  let choices = [correct];
+  const others = COLORS_QUIZ.filter(c => c.name !== correct.name).sort(() => Math.random()-0.5).slice(0,3);
+  choices = [...choices, ...others].sort(() => Math.random()-0.5);
+
+  const choicesEl = document.getElementById('quiz-choices');
+  choicesEl.innerHTML = '';
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-btn';
+    btn.textContent = c.name;
+    btn.onclick = () => answerQuiz(btn, c.name === correct.name);
+    choicesEl.appendChild(btn);
+  });
+}
+
+function answerQuiz(btn, isCorrect) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  if (isCorrect) {
+    btn.classList.add('correct-ans');
+    quizStreak++;
+    const earned = 5 + quizStreak;
+    quizCoinsEarned += earned;
+    gainCoins(earned);
+    gainXP(12);
+    spawnFloat(btn, `+${earned} 🪙`);
+  } else {
+    btn.classList.add('wrong-ans');
+    quizStreak = 0;
+    // Show correct
+    document.querySelectorAll('.quiz-btn').forEach(b => {
+      if (!b.classList.contains('wrong-ans')) b.classList.add('correct-ans');
+    });
+  }
+
+  document.getElementById('quiz-streak').textContent = `🔥 Streak: ${quizStreak}`;
+  quizQ++;
+  setTimeout(loadQuizQuestion, 1100);
+}
+
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+function gainCoins(n) {
+  coins += n;
+  renderTopBar();
+}
+
+function gainXP(n) {
+  xp += n;
+  while (xp >= xpToNext) {
+    xp -= xpToNext;
+    level++;
+    xpToNext = Math.floor(xpToNext * 1.3);
+    showToast(`🎉 Level ${level}! Keep going!`);
+    spawnConfetti(25);
+  }
+  renderTopBar();
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['feed','collect','games'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function showScreen(id) {
+  currentScreen = id;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function exitMinigame() {
+  clearInterval(tapInterval);
+  showScreen('game-screen');
+  renderAll();
+}
+
+function showResult(emoji, title, subtitle, coins) {
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-coins').textContent = `${subtitle}\n+${coins} 🪙 earned!`;
+  document.getElementById('result-overlay').classList.add('show');
+  spawnConfetti(40);
+}
+
+function closeResult() {
+  document.getElementById('result-overlay').classList.remove('show');
+}
+
+function spawnFloat(el, text) {
+  const rect = el.getBoundingClientRect ? el.getBoundingClientRect() : {left:100,top:100};
+  const ft = document.createElement('div');
+  ft.className = 'float-text';
+  ft.textContent = text;
+  ft.style.left = (rect.left + rect.width/2 - 20) + 'px';
+  ft.style.top  = (rect.top - 10) + 'px';
+  document.body.appendChild(ft);
+  setTimeout(() => ft.remove(), 900);
+}
+
+function spawnConfetti(n=20) {
+  const colors = ['#FF4D6D','#FFD700','#4ECDC4','#A855F7','#4ADE80','#60A5FA','#F472B6'];
+  const el = document.getElementById('confetti');
+  for (let i = 0; i < n; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'cp';
+      const size = 6 + Math.random()*8;
+      p.style.cssText = `
+        left:${Math.random()*100}vw; top:-10px;
+        width:${size}px; height:${size}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:${Math.random()>.5?'50%':'3px'};
+        animation: cf ${1.2+Math.random()*1.5}s ${Math.random()*0.4}s linear forwards;
+      `;
+      el.appendChild(p);
+      setTimeout(() => p.remove(), 3000);
+    }, i * 35);
+  }
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>

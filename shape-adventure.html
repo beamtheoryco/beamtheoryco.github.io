@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zara's Shape Adventure!</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red:    #FF4D6D;
+    --orange: #FF8C42;
+    --yellow: #FFD166;
+    --green:  #06D6A0;
+    --blue:   #118AB2;
+    --purple: #9B5DE5;
+    --pink:   #F72585;
+    --white:  #FFFDF7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #0D0D2B;
+    overflow-x: hidden;
+  }
+
+  /* Twinkling stars */
+  .stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--d) ease-in-out infinite alternate;
+    animation-delay: var(--dl);
+  }
+
+  @keyframes twinkle {
+    from { opacity: 0.1; transform: scale(0.8); }
+    to   { opacity: 0.9; transform: scale(1.2); }
+  }
+
+  /* GAME CARD */
+  .game-card {
+    background: #16163A;
+    border-radius: 32px;
+    max-width: 640px;
+    width: 100%;
+    padding: 36px 32px 32px;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.07),
+      0 30px 80px rgba(0,0,0,0.6);
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.5s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 10px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--yellow), var(--orange));
+    transition: width 0.5s ease;
+  }
+
+  .progress-text {
+    font-size: 0.78rem;
+    font-weight: 900;
+    color: rgba(255,255,255,0.35);
+    white-space: nowrap;
+    letter-spacing: 1px;
+  }
+
+  /* SCENE ILLUSTRATION */
+  .scene {
+    width: 100%;
+    height: 200px;
+    border-radius: 22px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.5s ease;
+  }
+
+  .scene-shapes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 16px;
+  }
+
+  .shape {
+    animation: float 3s ease-in-out infinite;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+    transition: transform 0.2s;
+    cursor: default;
+  }
+
+  .shape:nth-child(2) { animation-delay: -1s; }
+  .shape:nth-child(3) { animation-delay: -2s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50%       { transform: translateY(-12px) rotate(4deg); }
+  }
+
+  /* STORY TEXT */
+  .chapter-label {
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 8px;
+  }
+
+  .story-text {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.55;
+    margin-bottom: 22px;
+    min-height: 80px;
+  }
+
+  .story-text em {
+    font-style: normal;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 6px;
+  }
+
+  /* QUESTION */
+  .question-box {
+    background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+  }
+
+  .question-label {
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 6px;
+  }
+
+  .question-text {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--yellow);
+    line-height: 1.3;
+  }
+
+  /* CHOICES */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 420px) { .choices { grid-template-columns: 1fr; } }
+
+  .choice-btn {
+    background: rgba(255,255,255,0.07);
+    border: 2.5px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 14px 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+  }
+
+  .choice-btn:hover {
+    background: rgba(255,255,255,0.13);
+    border-color: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+  }
+
+  .choice-btn.correct {
+    background: rgba(6,214,160,0.2);
+    border-color: var(--green);
+    color: var(--green);
+    animation: pulse-correct 0.4s ease;
+  }
+
+  .choice-btn.wrong {
+    background: rgba(255,77,109,0.15);
+    border-color: var(--red);
+    color: rgba(255,255,255,0.4);
+    text-decoration: line-through;
+  }
+
+  @keyframes pulse-correct {
+    0%  { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100%{ transform: scale(1); }
+  }
+
+  .choice-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .choice-btn.correct .choice-icon::after { content: ' ✓'; font-size: 1rem; }
+
+  /* FEEDBACK */
+  .feedback {
+    text-align: center;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.1rem;
+    font-weight: 700;
+    min-height: 32px;
+    margin-bottom: 14px;
+    transition: all 0.3s;
+  }
+
+  .feedback.good { color: var(--green); }
+  .feedback.bad  { color: var(--red); }
+
+  /* NEXT BUTTON */
+  .next-btn {
+    display: none;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.3rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.5px;
+  }
+
+  .next-btn:hover { transform: translateY(-2px); }
+  .next-btn:active { transform: translateY(1px); }
+
+  /* SCORE BADGE */
+  .score-badge {
+    position: absolute;
+    top: 20px; right: 24px;
+    background: rgba(255,255,255,0.07);
+    border: 2px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 5px 12px;
+    font-weight: 900;
+    font-size: 0.85rem;
+    color: var(--yellow);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* TITLE SCREEN */
+  .title-screen {
+    text-align: center;
+    padding: 10px 0 6px;
+  }
+
+  .title-screen .big-emoji { font-size: 4rem; margin-bottom: 10px; display: block; animation: float 3s ease-in-out infinite; }
+
+  .title-screen h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .title-screen h1 span {
+    background: linear-gradient(90deg, var(--red), var(--orange), var(--yellow), var(--green), var(--blue), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .title-screen p {
+    color: rgba(255,255,255,0.55);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .start-btn {
+    display: inline-block;
+    padding: 16px 48px;
+    background: linear-gradient(135deg, var(--yellow), var(--orange));
+    border: none;
+    border-radius: 99px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #0D0D2B;
+    cursor: pointer;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.5px;
+  }
+
+  .start-btn:hover { transform: translateY(-3px); box-shadow: 0 11px 0 rgba(0,0,0,0.3); }
+  .start-btn:active { transform: translateY(2px); box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
+
+  /* END SCREEN */
+  .end-screen { text-align: center; padding: 10px 0; }
+  .end-screen .trophy { font-size: 5rem; display: block; animation: float 2s ease-in-out infinite; margin-bottom: 10px; }
+  .end-screen h2 { font-family: 'Baloo 2', cursive; font-size: 2.2rem; color: var(--yellow); margin-bottom: 8px; }
+  .end-screen .final-score { font-size: 1.1rem; color: rgba(255,255,255,0.6); font-weight: 800; margin-bottom: 24px; }
+  .end-screen .final-score strong { color: white; font-size: 1.4rem; }
+
+  .star-row { font-size: 2.5rem; margin-bottom: 20px; letter-spacing: 4px; }
+
+  .replay-btn {
+    display: inline-block;
+    padding: 15px 44px;
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    border: none;
+    border-radius: 99px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .replay-btn:hover { transform: translateY(-3px); }
+
+  .hidden { display: none !important; }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    animation: confetti-fall linear forwards;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  @keyframes confetti-fall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="game-card" id="game-card">
+
+  <!-- TITLE SCREEN -->
+  <div id="title-screen" class="title-screen">
+    <span class="big-emoji">🔮</span>
+    <h1>Zara's<br><span>Shape Adventure!</span></h1>
+    <p>Help Zara the Wizard find the right<br>colors & shapes to save the Rainbow Kingdom! 🌈</p>
+    <button class="start-btn" onclick="startGame()">▶ Let's Go!</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="hidden">
+    <div class="score-badge">⭐ <span id="score-display">0</span></div>
+
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-text" id="progress-text">1 / 8</div>
+    </div>
+
+    <div class="scene" id="scene">
+      <div class="scene-shapes" id="scene-shapes"></div>
+    </div>
+
+    <div class="chapter-label" id="chapter-label">Chapter 1</div>
+    <div class="story-text" id="story-text"></div>
+
+    <div class="question-box">
+      <div class="question-label">🧙 Zara asks…</div>
+      <div class="question-text" id="question-text"></div>
+    </div>
+
+    <div class="choices" id="choices"></div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <button class="next-btn" id="next-btn" onclick="nextScene()"></button>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end-screen" class="end-screen hidden">
+    <span class="trophy">🏆</span>
+    <h2>You saved the<br>Rainbow Kingdom!</h2>
+    <div class="star-row" id="star-row"></div>
+    <div class="final-score">You got <strong id="final-score">0</strong> out of 8 right!</div>
+    <button class="replay-btn" onclick="startGame()">🔄 Play Again!</button>
+  </div>
+
+</div>
+
+<script>
+// ─── STAR BACKGROUND ───────────────────────────────────────────
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 80; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 3 + 1;
+  s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;--dl:-${Math.random()*4}s`;
+  starsEl.appendChild(s);
+}
+
+// ─── SVG SHAPES ─────────────────────────────────────────────────
+const SVG = {
+  circle:   (c, s=90) => `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="${c}"/></svg>`,
+  square:   (c, s=90) => `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><rect x="8" y="8" width="84" height="84" rx="10" fill="${c}"/></svg>`,
+  triangle: (c, s=90) => `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><polygon points="50,6 94,94 6,94" fill="${c}"/></svg>`,
+  star:     (c, s=90) => `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><polygon points="50,5 61,35 95,35 68,57 79,91 50,70 21,91 32,57 5,35 39,35" fill="${c}"/></svg>`,
+  diamond:  (c, s=90) => `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><polygon points="50,5 95,50 50,95 5,50" fill="${c}"/></svg>`,
+  heart:    (c, s=90) => `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><path d="M50 85 C50 85 10 58 10 32 C10 18 20 8 35 8 C43 8 50 15 50 15 C50 15 57 8 65 8 C80 8 90 18 90 32 C90 58 50 85 50 85Z" fill="${c}"/></svg>`,
+};
+
+const COLORS = {
+  red:    '#FF4D6D',
+  orange: '#FF8C42',
+  yellow: '#FFD166',
+  green:  '#06D6A0',
+  blue:   '#118AB2',
+  purple: '#9B5DE5',
+  pink:   '#F72585',
+};
+
+// ─── STORY SCENES ───────────────────────────────────────────────
+const scenes = [
+  {
+    chapter: 'Chapter 1 — The Missing Sun',
+    bg: 'linear-gradient(160deg, #1a1a4e, #2d2060)',
+    shapes: [
+      { type: 'circle', color: COLORS.yellow },
+      { type: 'star',   color: COLORS.yellow, size: 70 },
+      { type: 'circle', color: COLORS.orange, size: 60 },
+    ],
+    story: `Zara the Wizard woke up and the sky was DARK! The sun had disappeared! She looked in her magic bag and found three glowing shapes. She needed the <em style="background:rgba(255,209,102,0.25);color:#FFD166">round yellow one</em> to bring the sun back!`,
+    question: 'Which shape should Zara pick to make the round, yellow SUN?',
+    choices: [
+      { icon: SVG.circle(COLORS.yellow, 40), label: 'Yellow Circle',   correct: true  },
+      { icon: SVG.square(COLORS.blue,   40), label: 'Blue Square',     correct: false },
+      { icon: SVG.triangle(COLORS.red,  40), label: 'Red Triangle',    correct: false },
+      { icon: SVG.diamond(COLORS.purple,40), label: 'Purple Diamond',  correct: false },
+    ],
+    correct_feedback: '☀️ The sun is back! The sky turned bright and warm! Great job!',
+    wrong_feedback: 'Hmm, that\'s not quite right! The sun is round and yellow — try again!',
+  },
+  {
+    chapter: 'Chapter 2 — The Broken Bridge',
+    bg: 'linear-gradient(160deg, #0d2b1a, #1a4a2e)',
+    shapes: [
+      { type: 'square',   color: COLORS.green },
+      { type: 'square',   color: COLORS.green, size: 70 },
+      { type: 'square',   color: COLORS.green, size: 50 },
+    ],
+    story: `Zara came to a river! The bridge was broken and she needed to fix it. The bridge was made of flat, green boards. Zara needed to find <em style="background:rgba(6,214,160,0.2);color:#06D6A0">green squares</em> to patch the holes!`,
+    question: 'What shape does Zara need to fix the bridge?',
+    choices: [
+      { icon: SVG.circle(COLORS.pink,   40), label: 'Pink Circle',    correct: false },
+      { icon: SVG.square(COLORS.green,  40), label: 'Green Square',   correct: true  },
+      { icon: SVG.heart(COLORS.red,     40), label: 'Red Heart',      correct: false },
+      { icon: SVG.triangle(COLORS.yellow,40),label: 'Yellow Triangle',correct: false },
+    ],
+    correct_feedback: '🌉 The bridge is fixed! Zara hops across the river!',
+    wrong_feedback: 'The bridge needs flat square pieces — try the green square!',
+  },
+  {
+    chapter: 'Chapter 3 — The Magic Forest',
+    bg: 'linear-gradient(160deg, #1a0d2b, #2e1a4a)',
+    shapes: [
+      { type: 'triangle', color: COLORS.purple },
+      { type: 'triangle', color: COLORS.purple, size: 70 },
+      { type: 'star',     color: COLORS.pink,   size: 55 },
+    ],
+    story: `Deep in the Magic Forest, the trees had lost their pointy tops! Without them the forest looked sad. The treetops were <em style="background:rgba(155,93,229,0.2);color:#9B5DE5">purple and triangle-shaped</em>. Zara needed to put them back!`,
+    question: 'Which shape looks like a pointy treetop?',
+    choices: [
+      { icon: SVG.triangle(COLORS.purple, 40), label: 'Purple Triangle', correct: true  },
+      { icon: SVG.circle(COLORS.orange,   40), label: 'Orange Circle',   correct: false },
+      { icon: SVG.square(COLORS.blue,     40), label: 'Blue Square',     correct: false },
+      { icon: SVG.diamond(COLORS.yellow,  40), label: 'Yellow Diamond',  correct: false },
+    ],
+    correct_feedback: '🌲 The forest is happy again! The purple triangles fit perfectly!',
+    wrong_feedback: 'Treetops are pointy — try the purple triangle!',
+  },
+  {
+    chapter: 'Chapter 4 — The Ice Cave',
+    bg: 'linear-gradient(160deg, #0d1e2b, #0d2d4a)',
+    shapes: [
+      { type: 'diamond', color: COLORS.blue },
+      { type: 'diamond', color: '#90e0ef', size: 65 },
+      { type: 'diamond', color: '#caf0f8', size: 45 },
+    ],
+    story: `Zara found a sparkling ice cave! But the magic door was locked. It could only be opened with a <em style="background:rgba(17,138,178,0.25);color:#74C0FC">blue diamond</em> shape — like a shiny ice crystal!`,
+    question: 'Which shape unlocks the ice cave door?',
+    choices: [
+      { icon: SVG.heart(COLORS.pink,     40), label: 'Pink Heart',    correct: false },
+      { icon: SVG.star(COLORS.yellow,    40), label: 'Yellow Star',   correct: false },
+      { icon: SVG.diamond(COLORS.blue,   40), label: 'Blue Diamond',  correct: true  },
+      { icon: SVG.triangle(COLORS.green, 40), label: 'Green Triangle',correct: false },
+    ],
+    correct_feedback: '❄️ Click! The door opens! Inside are glittering icy treasures!',
+    wrong_feedback: 'The keyhole is diamond-shaped and blue — look for the blue diamond!',
+  },
+  {
+    chapter: 'Chapter 5 — The Cloud Village',
+    bg: 'linear-gradient(160deg, #1a1a1a, #2a2a4a)',
+    shapes: [
+      { type: 'circle',  color: 'white' },
+      { type: 'circle',  color: '#e0e0ff', size: 65 },
+      { type: 'circle',  color: '#ccccff', size: 45 },
+    ],
+    story: `High above the mountains was a village made of fluffy clouds! The clouds had rolled away. Zara needed <em style="background:rgba(255,255,255,0.1);color:white">white, round circles</em> to float back up and rebuild the village!`,
+    question: 'What shape are the fluffy clouds?',
+    choices: [
+      { icon: SVG.square(COLORS.orange,  40), label: 'Orange Square',  correct: false },
+      { icon: SVG.circle('#ffffff',       40), label: 'White Circle',   correct: true  },
+      { icon: SVG.triangle(COLORS.purple, 40), label: 'Purple Triangle',correct: false },
+      { icon: SVG.heart(COLORS.red,       40), label: 'Red Heart',      correct: false },
+    ],
+    correct_feedback: '☁️ The clouds float back up! The village is cozy and safe again!',
+    wrong_feedback: 'Clouds are round and fluffy — find the white circle!',
+  },
+  {
+    chapter: 'Chapter 6 — The Rainbow Garden',
+    bg: 'linear-gradient(160deg, #1a0d00, #2b1a0d)',
+    shapes: [
+      { type: 'heart', color: COLORS.red   },
+      { type: 'heart', color: COLORS.pink,  size: 65 },
+      { type: 'heart', color: COLORS.orange,size: 50 },
+    ],
+    story: `Zara found a magical garden! The flowers needed love to bloom. Each flower had a <em style="background:rgba(255,77,109,0.2);color:#FF4D6D">red heart</em> in the middle. Zara had to find the right shape to wake them up!`,
+    question: 'What shape is in the middle of the magic flowers?',
+    choices: [
+      { icon: SVG.star(COLORS.yellow,    40), label: 'Yellow Star',  correct: false },
+      { icon: SVG.diamond(COLORS.blue,   40), label: 'Blue Diamond', correct: false },
+      { icon: SVG.circle(COLORS.green,   40), label: 'Green Circle', correct: false },
+      { icon: SVG.heart(COLORS.red,      40), label: 'Red Heart',    correct: true  },
+    ],
+    correct_feedback: '🌸 The flowers bloom! Pinks and reds fill the whole garden!',
+    wrong_feedback: 'It\'s a love shape — try the red heart!',
+  },
+  {
+    chapter: 'Chapter 7 — The Wizard Tower',
+    bg: 'linear-gradient(160deg, #1a0a2b, #2d0d47)',
+    shapes: [
+      { type: 'star', color: COLORS.yellow },
+      { type: 'star', color: COLORS.orange, size: 65 },
+      { type: 'star', color: COLORS.yellow, size: 45 },
+    ],
+    story: `Zara reached her tall Wizard Tower! The magic wand at the top had lost its star. Without it, no spells would work! She needed an <em style="background:rgba(255,209,102,0.2);color:#FFD166">orange star</em> to put it back!`,
+    question: 'What shape goes on top of Zara\'s magic wand?',
+    choices: [
+      { icon: SVG.circle(COLORS.purple,  40), label: 'Purple Circle',  correct: false },
+      { icon: SVG.star(COLORS.orange,    40), label: 'Orange Star',    correct: true  },
+      { icon: SVG.square(COLORS.green,   40), label: 'Green Square',   correct: false },
+      { icon: SVG.triangle(COLORS.blue,  40), label: 'Blue Triangle',  correct: false },
+    ],
+    correct_feedback: '✨ Zap! The wand glows! Magic sparks fly everywhere!',
+    wrong_feedback: 'Wand tips are pointy stars — try the orange star!',
+  },
+  {
+    chapter: 'Chapter 8 — The Rainbow is Back!',
+    bg: 'linear-gradient(160deg, #0d1a2b, #1a0d2b)',
+    shapes: [
+      { type: 'circle',   color: COLORS.red    },
+      { type: 'triangle', color: COLORS.yellow  },
+      { type: 'square',   color: COLORS.blue    },
+    ],
+    story: `The Rainbow Kingdom is almost saved! Zara just needs to finish the rainbow. It needs ONE more color at the end. The missing piece is a big, beautiful <em style="background:rgba(155,93,229,0.2);color:#9B5DE5">purple shape</em> — any shape at all!`,
+    question: 'Which one is PURPLE? (Any shape works!)',
+    choices: [
+      { icon: SVG.circle(COLORS.red,     40), label: 'Red Circle',     correct: false },
+      { icon: SVG.square(COLORS.purple,  40), label: 'Purple Square',  correct: true  },
+      { icon: SVG.heart(COLORS.orange,   40), label: 'Orange Heart',   correct: false },
+      { icon: SVG.star(COLORS.green,     40), label: 'Green Star',     correct: false },
+    ],
+    correct_feedback: '🌈 THE RAINBOW IS COMPLETE! The whole Kingdom cheers for Zara — and for YOU!',
+    wrong_feedback: 'Purple is a mix of red and blue — it\'s a cool, royal color! Try again!',
+  },
+];
+
+// ─── GAME STATE ─────────────────────────────────────────────────
+let currentScene = 0;
+let score = 0;
+let answered = false;
+
+function startGame() {
+  currentScene = 0;
+  score = 0;
+  answered = false;
+  document.getElementById('title-screen').classList.add('hidden');
+  document.getElementById('end-screen').classList.add('hidden');
+  document.getElementById('game-screen').classList.remove('hidden');
+  loadScene();
+}
+
+function loadScene() {
+  answered = false;
+  const s = scenes[currentScene];
+  const total = scenes.length;
+
+  // Progress
+  document.getElementById('progress-fill').style.width = `${(currentScene / total) * 100}%`;
+  document.getElementById('progress-text').textContent = `${currentScene + 1} / ${total}`;
+  document.getElementById('score-display').textContent = score;
+
+  // Scene bg & shapes
+  const scene = document.getElementById('scene');
+  scene.style.background = s.bg;
+  const shapesEl = document.getElementById('scene-shapes');
+  shapesEl.innerHTML = s.shapes.map(sh =>
+    `<div class="shape">${SVG[sh.type](sh.color, sh.size || 90)}</div>`
+  ).join('');
+
+  // Text
+  document.getElementById('chapter-label').textContent = s.chapter;
+  document.getElementById('story-text').innerHTML = s.story;
+  document.getElementById('question-text').textContent = s.question;
+
+  // Choices
+  const choicesEl = document.getElementById('choices');
+  // Shuffle choices
+  const shuffled = [...s.choices].sort(() => Math.random() - 0.5);
+  choicesEl.innerHTML = shuffled.map((c, i) =>
+    `<button class="choice-btn" onclick="answer(this, ${c.correct})">
+      <span class="choice-icon">${c.icon}</span>
+      <span>${c.label}</span>
+    </button>`
+  ).join('');
+
+  // Reset feedback & next btn
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  const nb = document.getElementById('next-btn');
+  nb.style.display = 'none';
+
+  // Animate card in
+  const card = document.getElementById('game-card');
+  card.style.animation = 'none';
+  requestAnimationFrame(() => { card.style.animation = 'fadeUp 0.4s ease'; });
+}
+
+function answer(btn, isCorrect) {
+  if (answered) return;
+  answered = true;
+
+  const s = scenes[currentScene];
+  const fb = document.getElementById('feedback');
+  const nb = document.getElementById('next-btn');
+
+  // Disable all buttons
+  document.querySelectorAll('.choice-btn').forEach(b => b.style.pointerEvents = 'none');
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    score++;
+    document.getElementById('score-display').textContent = score;
+    fb.textContent = s.correct_feedback;
+    fb.className = 'feedback good';
+    spawnConfetti();
+  } else {
+    btn.classList.add('wrong');
+    fb.textContent = s.wrong_feedback;
+    fb.className = 'feedback bad';
+    // Highlight correct
+    setTimeout(() => {
+      document.querySelectorAll('.choice-btn').forEach(b => {
+        const onclick = b.getAttribute('onclick');
+        if (onclick && onclick.includes('true')) b.classList.add('correct');
+      });
+    }, 600);
+  }
+
+  const isLast = currentScene === scenes.length - 1;
+  nb.style.display = 'block';
+  nb.textContent = isLast ? '🏆 See Your Score!' : '➡️ Next Chapter';
+  nb.style.background = isLast
+    ? 'linear-gradient(135deg, #FFD700, #FF9500)'
+    : 'linear-gradient(135deg, #9B5DE5, #118AB2)';
+  nb.style.color = isLast ? '#0D0D2B' : 'white';
+  nb.style.boxShadow = '0 6px 0 rgba(0,0,0,0.3)';
+}
+
+function nextScene() {
+  currentScene++;
+  if (currentScene >= scenes.length) {
+    showEnd();
+  } else {
+    loadScene();
+  }
+}
+
+function showEnd() {
+  document.getElementById('game-screen').classList.add('hidden');
+  document.getElementById('end-screen').classList.remove('hidden');
+  document.getElementById('final-score').textContent = score;
+  const pct = score / scenes.length;
+  let stars = pct >= 0.875 ? '⭐⭐⭐' : pct >= 0.625 ? '⭐⭐' : '⭐';
+  document.getElementById('star-row').textContent = stars;
+  spawnConfetti(60);
+}
+
+function spawnConfetti(count = 20) {
+  const colors = ['#FF4D6D','#FFD166','#06D6A0','#118AB2','#9B5DE5','#FF8C42','#F72585'];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        top: -10px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        width: ${6 + Math.random() * 8}px;
+        height: ${6 + Math.random() * 8}px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        animation-duration: ${1.5 + Math.random() * 2}s;
+        animation-delay: ${Math.random() * 0.5}s;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }, i * 40);
+  }
+}
+</script>
+</body>
+</html>

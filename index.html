@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kids Activity Hub">
+<meta name="theme-color" content="#1a0533">
+<title>🌟 Kids Activity Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-top: #1a0533;
+    --bg-bot: #0d1f3c;
+    --card-bg: rgba(255,255,255,0.07);
+    --card-border: rgba(255,255,255,0.12);
+    --gold: #FFD700;
+    --gold-dark: #C8A600;
+    --white: #F8F0FF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    min-height: 100%;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  body {
+    background: linear-gradient(160deg, var(--bg-top) 0%, #2d0a5e 40%, var(--bg-bot) 100%);
+    min-height: 100vh;
+    padding: 0 0 60px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Stars */
+  .stars-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--d) ease-in-out infinite alternate;
+    animation-delay: var(--dl);
+  }
+
+  @keyframes twinkle {
+    from { opacity: 0.08; transform: scale(0.7); }
+    to   { opacity: 0.9; transform: scale(1.3); }
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 48px 24px 36px;
+  }
+
+  .hero-logo {
+    font-size: 5rem;
+    display: block;
+    margin-bottom: 12px;
+    animation: float 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 24px rgba(255,215,0,0.5));
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0) rotate(-6deg); }
+    50%      { transform: translateY(-14px) rotate(6deg); }
+  }
+
+  .hero h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.4rem, 7vw, 3.8rem);
+    color: var(--gold);
+    text-shadow: 0 0 40px rgba(255,215,0,0.5), 3px 4px 0 rgba(0,0,0,0.3);
+    line-height: 1.05;
+    margin-bottom: 10px;
+  }
+
+  .hero p {
+    font-size: 1rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+
+  .activity-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,215,0,0.12);
+    border: 2px solid rgba(255,215,0,0.3);
+    border-radius: 99px;
+    padding: 8px 20px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: var(--gold);
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 32px 0 16px;
+  }
+
+  .section-line { flex: 1; height: 2px; background: rgba(255,255,255,0.08); border-radius: 99px; }
+
+  .section-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+
+  /* ── CARDS GRID ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+
+  /* ── ACTIVITY CARD ── */
+  .activity-card {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 24px;
+    padding: 0;
+    overflow: hidden;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .activity-card:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+
+  .activity-card:active { transform: scale(0.97); }
+
+  /* Color accent bar at top */
+  .card-accent {
+    height: 6px;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  .card-inner {
+    padding: 18px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .card-emoji {
+    font-size: 2.8rem;
+    flex-shrink: 0;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    line-height: 1;
+  }
+
+  .card-text { flex: 1; }
+
+  .card-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  .card-desc {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 4px;
+  }
+
+  .tag {
+    font-size: 0.65rem;
+    font-weight: 900;
+    padding: 3px 9px;
+    border-radius: 99px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .card-age {
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: rgba(255,255,255,0.35);
+  }
+
+  .card-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.9rem;
+    padding: 6px 16px;
+    border-radius: 99px;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: opacity 0.15s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .card-btn:hover { opacity: 0.85; }
+
+  /* ── COLOR THEMES PER CARD ── */
+  /* Neighborhood Hunt */
+  .theme-1 { --accent: #FF6B6B; --accent2: #FF8E53; --tag-bg: rgba(255,107,107,0.2); --tag-color: #FF6B6B; }
+  /* Backyard Hunt */
+  .theme-2 { --accent: #00B4D8; --accent2: #48CAE4; --tag-bg: rgba(0,180,216,0.2); --tag-color: #48CAE4; }
+  /* Park Hunt */
+  .theme-3 { --accent: #52B788; --accent2: #8B5E3C; --tag-bg: rgba(82,183,136,0.2); --tag-color: #74C69D; }
+  /* Alphabet Hunt */
+  .theme-4 { --accent: #F4A226; --accent2: #F4603C; --tag-bg: rgba(244,162,38,0.2); --tag-color: #F4A226; }
+  /* Number Hunt */
+  .theme-5 { --accent: #9B5DE5; --accent2: #F15BB5; --tag-bg: rgba(155,93,229,0.2); --tag-color: #C77DFF; }
+  /* Home Detective */
+  .theme-6 { --accent: #FFD60A; --accent2: #FF6B35; --tag-bg: rgba(255,214,10,0.2); --tag-color: #FFD60A; }
+  /* Shape Adventure */
+  .theme-7 { --accent: #F72585; --accent2: #7209B7; --tag-bg: rgba(247,37,133,0.2); --tag-color: #F72585; }
+  /* Pet Shop */
+  .theme-8 { --accent: #4ECDC4; --accent2: #A855F7; --tag-bg: rgba(78,205,196,0.2); --tag-color: #4ECDC4; }
+
+  [class*="theme-"] .card-accent { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  [class*="theme-"] .activity-card:hover { border-color: var(--accent); box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px var(--accent); }
+  [class*="theme-"] .tag { background: var(--tag-bg); color: var(--tag-color); }
+  [class*="theme-"] .card-btn { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+
+  /* ── INSTALL BANNER ── */
+  .install-banner {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 36px auto 0;
+    padding: 0 16px;
+  }
+
+  .install-box {
+    background: rgba(255,215,0,0.08);
+    border: 2px dashed rgba(255,215,0,0.3);
+    border-radius: 20px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .install-icon { font-size: 2.5rem; flex-shrink: 0; }
+
+  .install-text { flex: 1; min-width: 200px; }
+  .install-text strong { font-family: 'Fredoka One', cursive; font-size: 1.1rem; color: var(--gold); display: block; margin-bottom: 4px; }
+  .install-text p { font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+  /* ── FOOTER ── */
+  .footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-top: 40px;
+    padding: 0 16px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.18);
+    line-height: 2;
+  }
+
+  .footer a { color: rgba(255,255,255,0.3); text-decoration: none; }
+  .footer a:hover { color: var(--gold); }
+
+  /* Shooting star animation */
+  .shoot {
+    position: fixed;
+    width: 3px;
+    height: 80px;
+    background: linear-gradient(180deg, rgba(255,255,255,0), white);
+    border-radius: 99px;
+    pointer-events: none;
+    z-index: 0;
+    animation: shoot 1s linear forwards;
+  }
+
+  @keyframes shoot {
+    0%   { opacity: 1; transform: translateY(0) rotate(var(--angle)); }
+    100% { opacity: 0; transform: translateY(200px) rotate(var(--angle)); }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars-layer" id="stars"></div>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-logo">🌟</span>
+  <h1>Kids Activity Hub</h1>
+  <p>Scavenger hunts, games & adventures!</p>
+  <div class="activity-count">🎯 8 Activities Ready to Play</div>
+</div>
+
+<!-- ══ SCAVENGER HUNTS ══ -->
+<div class="section-wrap">
+  <div class="section-header">
+    <div class="section-line"></div>
+    <div class="section-label" style="background:rgba(82,183,136,0.2);color:#74C69D;">🔍 Scavenger Hunts</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cards-grid">
+
+    <!-- Neighborhood Hunt -->
+    <div class="theme-1">
+      <a class="activity-card" href="scavenger-hunt.html">
+        <div class="card-accent"></div>
+        <div class="card-inner">
+          <div class="card-top">
+            <div class="card-emoji">🌳</div>
+            <div class="card-text">
+              <div class="card-title">Neighborhood Hunt</div>
+              <div class="card-desc">Explore your street! Spot birds, flowers, dogs & fluffy clouds.</div>
+            </div>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Outdoors</span>
+            <span class="tag">12 items</span>
+            <span class="tag">Walking</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-age">Ages 4–7</div>
+            <span class="card-btn">Play ▶</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Backyard Hunt -->
+    <div class="theme-2">
+      <a class="activity-card" href="backyard-scavenger-hunt.html">
+        <div class="card-accent"></div>
+        <div class="card-inner">
+          <div class="card-top">
+            <div class="card-emoji">🏊</div>
+            <div class="card-text">
+              <div class="card-title">Backyard & Pool Hunt</div>
+              <div class="card-desc">Find pool floats, bugs, lizards & splashy surprises!</div>
+            </div>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Outdoors</span>
+            <span class="tag">14 items</span>
+            <span class="tag">Pool Fun</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-age">Ages 4–7</div>
+            <span class="card-btn">Play ▶</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Park Hunt -->
+    <div class="theme-3">
+      <a class="activity-card" href="park-scavenger-hunt.html">
+        <div class="card-accent"></div>
+        <div class="card-inner">
+          <div class="card-top">
+            <div class="card-emoji">🛝</div>
+            <div class="card-text">
+              <div class="card-title">Park & Jungle Gym Hunt</div>
+              <div class="card-desc">Slides, swings, squirrels & dandelions at the park!</div>
+            </div>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Outdoors</span>
+            <span class="tag">14 items</span>
+            <span class="tag">Playground</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-age">Ages 4–7</div>
+            <span class="card-btn">Play ▶</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Home Detective -->
+    <div class="theme-6">
+      <a class="activity-card" href="home-detective-hunt.html">
+        <div class="card-accent"></div>
+        <div class="card-inner">
+          <div class="card-top">
+            <div class="card-emoji">🔍</div>
+            <div class="card-text">
+              <div class="card-title">Home Detective Hunt</div>
+              <div class="card-desc">Find hot, cold, fluffy & mystery things — using all 5 senses!</div>
+            </div>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Indoors</span>
+            <span class="tag">24 items</span>
+            <span class="tag">Senses</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-age">Ages 4–8</div>
+            <span class="card-btn">Play ▶</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- ══ LEARNING ACTIVITIES ══ -->
+  <div class="section-header">
+    <div class="section-line"></div>
+    <div class="section-label" style="background:rgba(244,162,38,0.2);color:#F4A226;">📚 Learning Fun</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cards-grid">
+
+    <!-- Alphabet Hunt -->
+    <div class="theme-4">
+      <a class="activity-card" href="alphabet-hunt.html">
+        <div class="card-accent"></div>
+        <div class="card-inner">
+          <div class="card-top">
+            <div class="card-emoji">🔤</div>
+            <div class="card-text">
+              <div class="card-title">Park Alphabet Hunt</div>
+              <div class="card-desc">Find something for every letter A–Z at the park!</div>
+            </div>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Outdoors</span>
+            <span class="tag">A–Z</span>
+            <span class="tag">Letters</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-age">Ages 4–7</div>
+            <span class="card-btn">Play ▶</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Number Hunt -->
+    <div class="theme-5">
+      <a class="activity-card" href="number-hunt.html">
+        <div class="card-accent"></div>
+        <div class="card-inner">
+          <div class="card-top">
+            <div class="card-emoji">🔢</div>
+            <div class="card-text">
+              <div class="card-title">Number Hunt</div>
+              <div class="card-desc">Count shoes, lights, toys & rooms — numbers are everywhere!</div>
+            </div>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Indoors</span>
+            <span class="tag">1–10</span>
+            <span class="tag">Counting</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-age">Ages 4–7</div>
+            <span class="card-btn">Play ▶</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- ══ GAMES ══ -->
+  <div class="section-header">
+    <div class="section-line"></div>
+    <div class="section-label" style="background:rgba(247,37,133,0.2);color:#F72585;">🎮 Games</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cards-grid">
+
+    <!-- Shape Adventure -->
+    <div class="theme-7">
+      <a class="activity-card" href="shape-adventure.html">
+        <div class="card-accent"></div>
+        <div class="card-inner">
+          <div class="card-top">
+            <div class="card-emoji">🔮</div>
+            <div class="card-text">
+              <div class="card-title">Zara's Shape Adventure</div>
+              <div class="card-desc">8-chapter story game! Help Zara save the Rainbow Kingdom with colors & shapes.</div>
+            </div>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Story Game</span>
+            <span class="tag">8 Chapters</span>
+            <span class="tag">Colors</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-age">Ages 4–7</div>
+            <span class="card-btn">Play ▶</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Pet Shop -->
+    <div class="theme-8">
+      <a class="activity-card" href="sunny-pet-shop.html">
+        <div class="card-accent"></div>
+        <div class="card-inner">
+          <div class="card-top">
+            <div class="card-emoji">🐣</div>
+            <div class="card-text">
+              <div class="card-title">Sunny's Pet Shop</div>
+              <div class="card-desc">Feed pets, earn coins, collect 12 animals & play 3 mini games!</div>
+            </div>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Collecting</span>
+            <span class="tag">Mini Games</span>
+            <span class="tag">30+ min</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-age">Ages 4–8</div>
+            <span class="card-btn">Play ▶</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- INSTALL TIP -->
+  <div class="install-banner" style="padding:0;margin-top:36px;">
+    <div class="install-box">
+      <div class="install-icon">📱</div>
+      <div class="install-text">
+        <strong>Add to your Home Screen!</strong>
+        <p>On iPhone: tap the Share button → "Add to Home Screen"<br>
+           On Android: tap the menu (⋮) → "Add to Home Screen"<br>
+           It'll appear as an app icon — no App Store needed!</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Made with ❤️ for curious little explorers<br>
+    <span style="font-size:.7rem">All activities work offline once loaded · Print-friendly · Free forever</span>
+  </div>
+
+</div><!-- /section-wrap -->
+
+<script>
+  // Stars
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.8;
+    s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${1.5+Math.random()*4}s;--dl:-${Math.random()*5}s`;
+    starsEl.appendChild(s);
+  }
+
+  // Occasional shooting star
+  function shootStar() {
+    const el = document.createElement('div');
+    el.className = 'shoot';
+    const angle = -25 + Math.random() * 20;
+    el.style.cssText = `left:${10+Math.random()*80}%;top:${Math.random()*40}%;--angle:${angle}deg`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1100);
+    setTimeout(shootStar, 4000 + Math.random() * 8000);
+  }
+  setTimeout(shootStar, 2000);
+</script>
+</body>
+</html>
