@@ -237,8 +237,16 @@
     overflow: hidden;
   }
 
+  .pet-figure { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+  .pet-acc-slot { font-size: 2.2rem; line-height: 1.1; text-align: center; min-height: 2.2rem; transition: opacity 0.3s, transform 0.3s; }
+  .pet-acc-slot.empty { opacity: 0; }
+  .pet-acc-slot.side { position: absolute; right: -0.5rem; top: 50%; transform: translateY(-60%); font-size: 1.8rem; }
+  .pet-acc-slot.mid  { position: absolute; top: 3rem; font-size: 1.8rem; z-index: 2; pointer-events: none; }
   .active-pet { font-size: 5rem; cursor: pointer; transition: transform .1s; user-select: none; position: relative; z-index: 1; }
   .active-pet:active { transform: scale(0.88); }
+  .item-equip-btn { font-size: 0.7rem; font-weight: 900; color: var(--purple); background: #F5F3FF; border-radius: 8px; padding: 3px 8px; margin-top: 3px; }
+  .shop-item.equipped { border-color: var(--gold) !important; background: #FFFBEB !important; }
+  .shop-item.equipped .item-equip-btn { background: var(--gold); color: white; }
 
   .pet-name { font-family: 'Fredoka One', cursive; font-size: 1.4rem; color: var(--dark); }
 
@@ -600,7 +608,10 @@
   <div class="tab-content active" id="tab-feed">
     <div class="feed-area">
       <div class="pet-stage">
-        <div class="active-pet" id="active-pet-emoji" onclick="petTap()">🐣</div>
+        <div class="pet-figure" onclick="petTap()">
+          <div class="pet-acc-slot empty" id="pet-acc-slot"></div>
+          <div class="active-pet" id="active-pet-emoji">🐣</div>
+        </div>
         <div class="pet-name" id="active-pet-name">Sunny</div>
         <div class="hearts-row" id="hearts-row"></div>
         <div class="tap-hint">Tap me! 👆</div>
@@ -775,16 +786,17 @@ const SHOP_FOODS = [
 ];
 
 const ACCESSORIES = [
-  { emoji:'🎩', name:'Top Hat',    cost:40,  id:'hat1'  },
-  { emoji:'👑', name:'Crown',      cost:60,  id:'crown' },
-  { emoji:'🎀', name:'Bow',        cost:30,  id:'bow'   },
-  { emoji:'🕶️', name:'Sunglasses', cost:35,  id:'sunnies'},
-  { emoji:'🌈', name:'Rainbow',    cost:80,  id:'rainbow'},
-  { emoji:'⚡', name:'Lightning',  cost:100, id:'bolt'  },
+  { emoji:'🎩', name:'Top Hat',    cost:40,  id:'hat1',   pos:'top'  },
+  { emoji:'👑', name:'Crown',      cost:60,  id:'crown',  pos:'top'  },
+  { emoji:'🎀', name:'Bow',        cost:30,  id:'bow',    pos:'side' },
+  { emoji:'🕶️', name:'Sunglasses', cost:35,  id:'sunnies',pos:'mid'  },
+  { emoji:'🌈', name:'Rainbow',    cost:80,  id:'rainbow',pos:'top'  },
+  { emoji:'⚡', name:'Lightning',  cost:100, id:'bolt',   pos:'top'  },
 ];
 
 let unlockedFoods = new Set([0,1,2]);
 let boughtShopItems = new Set();
+let petEquipped = [null,null,null,null,null,null,null,null,null,null,null,null];
 let currentScreen = 'game-screen';
 let tapInterval = null;
 let tapCount = 0;
@@ -827,6 +839,20 @@ function renderFeedTab() {
   const pet = PETS[activePet];
   document.getElementById('active-pet-emoji').textContent = pet.emoji;
   document.getElementById('active-pet-name').textContent = pet.name;
+
+  const slot = document.getElementById('pet-acc-slot');
+  const accId = petEquipped[activePet];
+  if (accId) {
+    const acc = ACCESSORIES.find(a => a.id === accId);
+    if (acc) {
+      slot.textContent = acc.emoji;
+      slot.className = 'pet-acc-slot ' + acc.pos;
+    }
+  } else {
+    slot.textContent = '';
+    slot.className = 'pet-acc-slot empty';
+  }
+
   renderHearts();
   renderFoodGrid();
 }
@@ -956,14 +982,18 @@ function renderShopScreen() {
   accGrid.innerHTML = '';
   ACCESSORIES.forEach(item => {
     const bought = boughtShopItems.has(item.id);
+    const equipped = petEquipped[activePet] === item.id;
     const div = document.createElement('div');
-    div.className = 'shop-item' + (bought ? ' bought' : '');
+    div.className = 'shop-item' + (bought ? ' bought' : '') + (equipped ? ' equipped' : '');
     div.innerHTML = `
       <div class="item-emoji">${item.emoji}</div>
       <div class="item-name">${item.name}</div>
-      ${bought ? '<div class="item-bought">✓ Owned</div>' : `<div class="item-cost">🪙 ${item.cost}</div>`}
+      ${bought
+        ? `<div class="item-equip-btn">${equipped ? '✓ On!' : 'Equip'}</div>`
+        : `<div class="item-cost">🪙 ${item.cost}</div>`}
     `;
     if (!bought) div.onclick = () => buyShopItem(item);
+    else div.onclick = () => toggleEquip(item.id);
     accGrid.appendChild(div);
   });
 }
@@ -977,9 +1007,27 @@ function buyShopItem(item) {
   const foodMap = { berry:3, cupcake:4, pizza:5, icecream:6, taco:7 };
   if (foodMap[item.id] !== undefined) unlockedFoods.add(foodMap[item.id]);
 
+  // Auto-equip accessories on purchase
+  if (ACCESSORIES.find(a => a.id === item.id)) {
+    petEquipped[activePet] = item.id;
+  }
+
   renderAll();
-  showToast(`Got ${item.name}! ${item.emoji}`);
+  showToast(`Got ${item.name}! ${item.emoji} — now wearing it!`);
   spawnConfetti(15);
+}
+
+function toggleEquip(id) {
+  if (petEquipped[activePet] === id) {
+    petEquipped[activePet] = null;
+    showToast('Accessory removed 🐾');
+  } else {
+    petEquipped[activePet] = id;
+    const acc = ACCESSORIES.find(a => a.id === id);
+    showToast(`${acc.name} equipped! ${acc.emoji}`);
+  }
+  renderShopScreen();
+  renderFeedTab();
 }
 
 function openShop() { showScreen('shop-screen'); renderShopScreen(); }
