@@ -237,11 +237,11 @@
     overflow: hidden;
   }
 
-  .pet-figure { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+  .pet-figure { display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative; }
   .pet-acc-slot { font-size: 2.2rem; line-height: 1.1; text-align: center; min-height: 2.2rem; transition: opacity 0.3s, transform 0.3s; }
   .pet-acc-slot.empty { opacity: 0; }
   .pet-acc-slot.side { position: absolute; right: -0.5rem; top: 50%; transform: translateY(-60%); font-size: 1.8rem; }
-  .pet-acc-slot.mid  { position: absolute; top: 3rem; font-size: 1.8rem; z-index: 2; pointer-events: none; }
+  .pet-acc-slot.mid  { margin-bottom: -3.5rem; font-size: 1.8rem; z-index: 2; position: relative; }
   .active-pet { font-size: 5rem; cursor: pointer; transition: transform .1s; user-select: none; position: relative; z-index: 1; }
   .active-pet:active { transform: scale(0.88); }
   .item-equip-btn { font-size: 0.7rem; font-weight: 900; color: var(--purple); background: #F5F3FF; border-radius: 8px; padding: 3px 8px; margin-top: 3px; }
@@ -569,6 +569,8 @@
   }
 
   .toast.show { opacity: 1; }
+  .reset-btn { background: none; border: 2px solid rgba(255,255,255,0.3); border-radius: 99px; padding: 8px 22px; font-family: 'Fredoka One', cursive; font-size: 0.9rem; color: rgba(255,255,255,0.6); cursor: pointer; margin-top: 6px; transition: all 0.2s; }
+  .reset-btn:hover { border-color: rgba(255,255,255,0.7); color: white; }
 </style>
 </head>
 <body>
@@ -580,6 +582,7 @@
   <h1>Sunny's<br>Pet Shop!</h1>
   <p>Feed your pets, collect new friends,<br>play mini games & earn golden coins! 🪙</p>
   <button class="start-btn" onclick="startGame()">▶ Start Playing!</button>
+  <button class="reset-btn" onclick="resetGame()">🔄 Start Over</button>
 </div>
 
 <!-- ══ MAIN GAME ══ -->
@@ -810,9 +813,56 @@ let quizCoinsEarned = 0;
 let quizAnswered = false;
 
 // ═══════════════════════════════════════
+// SAVE / LOAD
+// ═══════════════════════════════════════
+function saveState() {
+  try {
+    localStorage.setItem('sunnyPetShop', JSON.stringify({
+      coins, xp, level, xpToNext, activePet,
+      petHearts,
+      petsOwned: PETS.map(p => p.owned),
+      unlockedFoods: [...unlockedFoods],
+      boughtShopItems: [...boughtShopItems],
+      petEquipped
+    }));
+  } catch(e) {}
+}
+
+function resetGame() {
+  if (!confirm('Start over? This will delete all your pets, coins & progress! 🐾')) return;
+  localStorage.removeItem('sunnyPetShop');
+  coins = 10; xp = 0; level = 1; xpToNext = 100; activePet = 0;
+  petHearts = [5,5,5,5,5,5,5,5,5,5,5,5];
+  PETS.forEach((p, i) => { p.owned = i === 0; });
+  unlockedFoods = new Set([0,1,2]);
+  boughtShopItems = new Set();
+  petEquipped = [null,null,null,null,null,null,null,null,null,null,null,null];
+  showToast('Starting fresh! 🌟');
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('sunnyPetShop');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.coins       !== undefined) coins       = d.coins;
+    if (d.xp          !== undefined) xp          = d.xp;
+    if (d.level       !== undefined) level       = d.level;
+    if (d.xpToNext    !== undefined) xpToNext    = d.xpToNext;
+    if (d.activePet   !== undefined) activePet   = d.activePet;
+    if (d.petHearts)   petHearts    = d.petHearts;
+    if (d.petsOwned)   d.petsOwned.forEach((v, i) => { if (PETS[i]) PETS[i].owned = v; });
+    if (d.unlockedFoods)  unlockedFoods  = new Set(d.unlockedFoods);
+    if (d.boughtShopItems) boughtShopItems = new Set(d.boughtShopItems);
+    if (d.petEquipped) petEquipped = d.petEquipped;
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
 function startGame() {
+  loadState();
   showScreen('game-screen');
   renderAll();
 }
@@ -902,6 +952,7 @@ function feedPet(foodIdx) {
   if (hearts < 5) petHearts[activePet] = Math.min(5, hearts + 1);
   gainCoins(f.pts);
   gainXP(f.xp);
+  saveState();
   renderHearts();
 
   const emoji = document.getElementById('active-pet-emoji');
@@ -945,6 +996,7 @@ function renderCollectTab() {
         p.owned = true;
         petHearts[i] = 5;
         activePet = i;
+        saveState();
         renderAll();
         spawnConfetti(30);
         showToast(`You got ${p.name}! ${p.emoji} 🎉`);
@@ -1012,6 +1064,7 @@ function buyShopItem(item) {
     petEquipped[activePet] = item.id;
   }
 
+  saveState();
   renderAll();
   showToast(`Got ${item.name}! ${item.emoji} — now wearing it!`);
   spawnConfetti(15);
@@ -1026,6 +1079,7 @@ function toggleEquip(id) {
     const acc = ACCESSORIES.find(a => a.id === id);
     showToast(`${acc.name} equipped! ${acc.emoji}`);
   }
+  saveState();
   renderShopScreen();
   renderFeedTab();
 }
@@ -1235,6 +1289,7 @@ function answerQuiz(btn, isCorrect) {
 function gainCoins(n) {
   coins += n;
   renderTopBar();
+  saveState();
 }
 
 function gainXP(n) {
@@ -1247,6 +1302,7 @@ function gainXP(n) {
     spawnConfetti(25);
   }
   renderTopBar();
+  saveState();
 }
 
 function switchTab(name) {
