@@ -256,12 +256,32 @@
     outline: none;
     margin-bottom: 8px;
   }
+  .bank-total-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    margin-bottom: 4px;
+  }
+  .bank-dollar {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--green);
+    line-height: 1;
+  }
   .bank-total {
     font-family: 'Fredoka One', cursive;
     font-size: 2rem;
     color: var(--green);
-    margin-bottom: 4px;
+    border: none;
+    border-bottom: 2px dashed rgba(6,214,160,0.4);
+    background: transparent;
+    text-align: center;
+    width: 100%;
+    min-width: 0;
+    outline: none;
+    cursor: text;
   }
+  .bank-total:focus { border-bottom-color: var(--green); }
   .bank-total.bump { animation: totalBump 0.4s ease; }
   @keyframes totalBump {
     0%,100% { transform: scale(1); }
@@ -453,7 +473,7 @@
     <div class="bank-card" id="bank-card-0">
       <div class="bank-emoji">🐷</div>
       <input class="bank-label-input" id="bank-label-0" type="text" value="Save" maxlength="12" onchange="saveState()">
-      <div class="bank-total" id="bank-total-0">$0.00</div>
+      <div class="bank-total-row"><span class="bank-dollar">$</span><input class="bank-total" id="bank-total-0" type="number" min="0" step="0.01" value="0" onblur="setTotal(0)" onkeydown="if(event.key==='Enter')this.blur()"></div>
       <div class="bank-count" id="bank-count-0">0 deposits</div>
       <div class="goal-section">
         <div class="goal-row">
@@ -468,7 +488,7 @@
     <div class="bank-card" id="bank-card-1">
       <div class="bank-emoji">🐽</div>
       <input class="bank-label-input" id="bank-label-1" type="text" value="Spend" maxlength="12" onchange="saveState()">
-      <div class="bank-total" id="bank-total-1">$0.00</div>
+      <div class="bank-total-row"><span class="bank-dollar">$</span><input class="bank-total" id="bank-total-1" type="number" min="0" step="0.01" value="0" onblur="setTotal(1)" onkeydown="if(event.key==='Enter')this.blur()"></div>
       <div class="bank-count" id="bank-count-1">0 deposits</div>
       <div class="goal-section">
         <div class="goal-row">
@@ -590,9 +610,19 @@
   function updateBankDisplay(idx) {
     const total = idx === 0 ? state.bank0Total : state.bank1Total;
     const count = idx === 0 ? state.bank0Count : state.bank1Count;
-    document.getElementById(`bank-total-${idx}`).textContent = `$${total.toFixed(2)}`;
+    document.getElementById(`bank-total-${idx}`).value = total.toFixed(2);
     document.getElementById(`bank-count-${idx}`).textContent =
       `${count} deposit${count !== 1 ? 's' : ''}`;
+  }
+
+  function setTotal(idx) {
+    const input = document.getElementById(`bank-total-${idx}`);
+    const val = Math.max(0, parseFloat(input.value) || 0);
+    if (idx === 0) state.bank0Total = Math.round(val * 100) / 100;
+    else           state.bank1Total = Math.round(val * 100) / 100;
+    saveState();
+    updateBankDisplay(idx);
+    updateGoalBar(idx);
   }
 
   function updateGoalBar(idx) {
