@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-GN1WK5BFJW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-GN1WK5BFJW');
+</script>
+<title>Magical Kingdom Scavenger Hunt!</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --midnight:  #0D0B2B;
+    --navy:      #12104A;
+    --purple:    #3D1C7A;
+    --gold:      #F0C040;
+    --gold-dark: #B8860B;
+    --gold-soft: #FFF0A0;
+    --rose:      #E87CB0;
+    --sky-blue:  #90C8FF;
+    --white:     #FFFEF8;
+    --dark:      #0D0B2B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Home Button ── */
+  .home-btn {
+    position: fixed; top: 14px; left: 14px; z-index: 999;
+    background: rgba(255,255,255,0.12); border: 2px solid rgba(240,192,64,0.6);
+    border-radius: 50%; width: 38px; height: 38px; font-size: 1.1rem;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    text-decoration: none; transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .home-btn:active { transform: scale(0.92); }
+
+  @media print {
+    body { background: white !important; }
+    .no-print { display: none !important; }
+    .starfield, .fireworks-canvas { display: none !important; }
+    .page { box-shadow: none !important; border: 3px solid #ccc !important; background: white !important; }
+    .card { border: 2px solid #ccc !important; background: #f9f9f9 !important; }
+    h1, .section-title { color: #000 !important; text-shadow: none !important; }
+  }
+
+  /* ── Star Field ── */
+  body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 50% 0%, #2D1B69 0%, #0D0B2B 60%);
+    padding: 30px 20px 60px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  .starfield {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d, 3s) ease-in-out infinite alternate;
+    opacity: 0;
+  }
+
+  @keyframes twinkle {
+    0%   { opacity: 0.1; transform: scale(0.8); }
+    100% { opacity: 0.9; transform: scale(1.2); }
+  }
+
+  /* ── Fireworks ── */
+  .fireworks-canvas {
+    position: fixed; inset: 0; pointer-events: none; z-index: 1000; display: none;
+  }
+
+  /* ── Page Card ── */
+  .page {
+    background: rgba(18, 16, 74, 0.92);
+    border-radius: 36px;
+    max-width: 720px;
+    width: 100%;
+    padding: 0 0 40px;
+    box-shadow:
+      0 0 0 2px var(--gold-dark),
+      0 0 0 5px rgba(240,192,64,0.15),
+      0 32px 80px rgba(0,0,0,0.7);
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  /* ── Header Banner ── */
+  .banner {
+    background: linear-gradient(180deg, #1a0a3d 0%, #2D1060 50%, #12104A 100%);
+    border-bottom: 3px solid var(--gold-dark);
+    padding: 32px 36px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle shimmer overlay */
+  .banner::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(240,192,64,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── CSS Castle ── */
+  .castle-wrap {
+    display: flex; justify-content: center; margin-bottom: 16px; position: relative; z-index: 1;
+  }
+
+  .castle {
+    position: relative; width: 200px; height: 120px;
+  }
+
+  /* Central tall spire */
+  .castle svg { width: 200px; height: 120px; filter: drop-shadow(0 0 12px rgba(240,192,64,0.7)); }
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    color: var(--gold);
+    line-height: 1.2;
+    text-shadow: 0 0 30px rgba(240,192,64,0.6), 2px 2px 0 rgba(0,0,0,0.4);
+    letter-spacing: 2px;
+    position: relative; z-index: 1;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    color: rgba(255,240,160,0.7);
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    position: relative; z-index: 1;
+    margin-bottom: 28px;
+  }
+
+  /* ── Gold Divider ── */
+  .gold-divider {
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), var(--gold), var(--gold-dark), transparent);
+    margin: 0 0 28px;
+  }
+
+  /* ── Content Padding ── */
+  .content { padding: 0 28px; }
+
+  /* ── Name Box ── */
+  .name-box {
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(240,192,64,0.08);
+    border: 2px solid rgba(240,192,64,0.35);
+    border-radius: 16px;
+    padding: 14px 20px;
+    margin-bottom: 24px;
+  }
+
+  .name-box label { font-weight: 900; font-size: 0.95rem; color: var(--gold); white-space: nowrap; }
+
+  .name-line {
+    flex: 1; min-width: 0;
+    border: none;
+    border-bottom: 2px dotted rgba(240,192,64,0.4);
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    color: var(--white);
+    outline: none;
+    padding: 4px 0;
+  }
+  .name-line::placeholder { color: rgba(255,255,255,0.25); }
+
+  /* ── Score Banner ── */
+  .score-banner {
+    background: linear-gradient(135deg, #1a0a3d, #3D1C7A);
+    border: 2px solid rgba(240,192,64,0.4);
+    border-radius: 20px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .score-label { font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--gold); letter-spacing: 1px; }
+  .score-count { font-family: 'Cinzel', serif; font-size: 2.2rem; color: var(--gold); text-shadow: 0 0 16px rgba(240,192,64,0.5); }
+  .stars-row { font-size: 1.3rem; letter-spacing: 1px; margin-top: 4px; }
+
+  /* ── Section Title ── */
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    text-shadow: 0 0 12px rgba(240,192,64,0.4);
+  }
+
+  /* ── Grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 11px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 500px) {
+    .grid { grid-template-columns: 1fr; }
+    h1 { font-size: 1.5rem; }
+    .content { padding: 0 16px; }
+  }
+
+  /* ── Cards ── */
+  .card {
+    border-radius: 16px;
+    padding: 13px 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid transparent;
+    transition: transform 0.15s ease, opacity 0.25s;
+    cursor: pointer;
+    user-select: none;
+    backdrop-filter: blur(4px);
+  }
+
+  .card:hover { transform: scale(1.025); }
+
+  .card.found {
+    opacity: 0.45;
+  }
+  .card.found .card-name {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-color: rgba(255,255,255,0.4);
+  }
+
+  /* Sky */
+  .c1 { background: rgba(144,200,255,0.1); border-color: rgba(144,200,255,0.35); }
+  .c2 { background: rgba(232,124,176,0.1); border-color: rgba(232,124,176,0.35); }
+  .c3 { background: rgba(240,192,64,0.08); border-color: rgba(240,192,64,0.3);  }
+  .c4 { background: rgba(130,80,220,0.15); border-color: rgba(180,130,255,0.35);}
+  /* People */
+  .p1 { background: rgba(255,180,100,0.1); border-color: rgba(255,180,100,0.35);}
+  .p2 { background: rgba(100,220,180,0.1); border-color: rgba(100,220,180,0.35);}
+  .p3 { background: rgba(255,120,160,0.1); border-color: rgba(255,120,160,0.35);}
+  .p4 { background: rgba(160,200,100,0.1); border-color: rgba(160,200,100,0.35);}
+  /* Food */
+  .f1 { background: rgba(255,200,60,0.1);  border-color: rgba(255,200,60,0.35); }
+  .f2 { background: rgba(255,140,80,0.1);  border-color: rgba(255,140,80,0.35); }
+  .f3 { background: rgba(180,120,220,0.1); border-color: rgba(180,120,220,0.35);}
+  .f4 { background: rgba(80,200,220,0.1);  border-color: rgba(80,200,220,0.35); }
+  /* Park */
+  .k1 { background: rgba(255,240,160,0.08);border-color: rgba(255,240,160,0.3); }
+  .k2 { background: rgba(100,160,255,0.1); border-color: rgba(100,160,255,0.35);}
+  .k3 { background: rgba(220,100,180,0.1); border-color: rgba(220,100,180,0.35);}
+  .k4 { background: rgba(120,220,160,0.1); border-color: rgba(120,220,160,0.35);}
+
+  .card-emoji { font-size: 2rem; width: 38px; text-align: center; flex-shrink: 0; }
+  .card-text  { flex: 1; }
+  .card-name  { font-weight: 800; font-size: 0.92rem; color: var(--white); line-height: 1.2; }
+  .card-hint  { font-size: 0.72rem; color: rgba(255,255,255,0.5); font-weight: 600; margin-top: 2px; }
+
+  .checkbox {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    border: 2px solid rgba(240,192,64,0.4);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    background: rgba(255,255,255,0.05);
+    transition: all 0.15s;
+    color: var(--midnight);
+  }
+
+  .card.found .checkbox { background: var(--gold); border-color: var(--gold); }
+
+  /* ── Bonus Section ── */
+  .bonus-section {
+    background: rgba(240,192,64,0.06);
+    border: 2px solid rgba(240,192,64,0.3);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+
+  .bonus-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+  .bonus-item {
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; user-select: none;
+  }
+
+  .bonus-item .checkbox { width: 24px; height: 24px; border-radius: 7px; }
+  .bonus-item.found .checkbox { background: var(--gold); border-color: var(--gold); }
+  .bonus-item.found .bonus-name { text-decoration: line-through; color: rgba(255,255,255,0.3); }
+  .bonus-name { font-weight: 700; font-size: 0.9rem; color: rgba(255,255,255,0.85); }
+  .bonus-emoji { font-size: 1.3rem; }
+
+  /* ── Congrats ── */
+  .congrats {
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(240,192,64,0.8);
+    display: none;
+    margin-bottom: 20px;
+    animation: pop 0.5s ease;
+    line-height: 1.5;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    80% { transform: scale(1.06); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ── Print Button ── */
+  .print-btn {
+    display: block; width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    color: var(--midnight); border: none; border-radius: 16px;
+    font-family: 'Cinzel', serif; font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer; letter-spacing: 2px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 6px 0 var(--gold-dark), 0 0 30px rgba(240,192,64,0.25);
+  }
+  .print-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--gold-dark), 0 0 40px rgba(240,192,64,0.35); }
+  .print-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--gold-dark); }
+
+  .footer { text-align: center; margin-top: 20px; font-size: 0.78rem; color: rgba(255,255,255,0.3); font-weight: 700; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+
+<!-- Star Field -->
+<div class="starfield" id="starfield"></div>
+
+<!-- Fireworks Canvas -->
+<canvas class="fireworks-canvas" id="fireworks"></canvas>
+
+<div class="page">
+
+  <!-- Header Banner -->
+  <div class="banner">
+    <div class="castle-wrap">
+      <!-- CSS Castle SVG — original design, no IP -->
+      <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Main central tower -->
+        <rect x="82" y="48" width="36" height="72" fill="#C9A84C"/>
+        <!-- Central tower arch/window -->
+        <rect x="91" y="72" width="18" height="24" rx="9" fill="#1a0a3d"/>
+        <!-- Central battlement tops -->
+        <rect x="82" y="42" width="8"  height="10" rx="2" fill="#C9A84C"/>
+        <rect x="93" y="38" width="14" height="14" rx="2" fill="#C9A84C"/>
+        <rect x="110" y="42" width="8" height="10" rx="2" fill="#C9A84C"/>
+        <!-- Central spire -->
+        <polygon points="100,2 89,40 111,40" fill="#F0C040"/>
+        <!-- Spire flag -->
+        <rect x="99" y="2" width="2" height="10" fill="#E87CB0"/>
+        <polygon points="101,2 115,8 101,14" fill="#E87CB0"/>
+
+        <!-- Left mid tower -->
+        <rect x="46" y="62" width="28" height="58" fill="#B8860B"/>
+        <rect x="52" y="80" width="16" height="20" rx="8" fill="#1a0a3d"/>
+        <rect x="46" y="56" width="7" height="9" rx="2" fill="#B8860B"/>
+        <rect x="56" y="52" width="8" height="13" rx="2" fill="#B8860B"/>
+        <rect x="67" y="56" width="7" height="9" rx="2" fill="#B8860B"/>
+        <polygon points="60,20 50,54 70,54" fill="#F0C040"/>
+
+        <!-- Right mid tower -->
+        <rect x="126" y="62" width="28" height="58" fill="#B8860B"/>
+        <rect x="132" y="80" width="16" height="20" rx="8" fill="#1a0a3d"/>
+        <rect x="126" y="56" width="7" height="9" rx="2" fill="#B8860B"/>
+        <rect x="137" y="52" width="8" height="13" rx="2" fill="#B8860B"/>
+        <rect x="148" y="56" width="7" height="9" rx="2" fill="#B8860B"/>
+        <polygon points="140,20 130,54 150,54" fill="#F0C040"/>
+
+        <!-- Left small outer tower -->
+        <rect x="12" y="78" width="22" height="42" fill="#9A6B00"/>
+        <rect x="12" y="73" width="6" height="8" rx="1" fill="#9A6B00"/>
+        <rect x="21" y="70" width="5" height="11" rx="1" fill="#9A6B00"/>
+        <rect x="28" y="73" width="6" height="8" rx="1" fill="#9A6B00"/>
+        <polygon points="23,52 14,73 32,73" fill="#C9A84C"/>
+
+        <!-- Right small outer tower -->
+        <rect x="166" y="78" width="22" height="42" fill="#9A6B00"/>
+        <rect x="166" y="73" width="6" height="8" rx="1" fill="#9A6B00"/>
+        <rect x="175" y="70" width="5" height="11" rx="1" fill="#9A6B00"/>
+        <rect x="182" y="73" width="6" height="8" rx="1" fill="#9A6B00"/>
+        <polygon points="177,52 168,73 186,73" fill="#C9A84C"/>
+
+        <!-- Connecting walls -->
+        <rect x="34" y="88" width="12" height="32" fill="#9A6B00"/>
+        <rect x="154" y="88" width="12" height="32" fill="#9A6B00"/>
+
+        <!-- Ground base -->
+        <rect x="0" y="114" width="200" height="6" rx="3" fill="#6B4400"/>
+
+        <!-- Stars / sparkles -->
+        <text x="10"  y="30" font-size="10" fill="#F0C040" opacity="0.7">✦</text>
+        <text x="182" y="25" font-size="8"  fill="#F0C040" opacity="0.6">✦</text>
+        <text x="5"   y="65" font-size="6"  fill="#E87CB0" opacity="0.6">★</text>
+        <text x="190" y="60" font-size="6"  fill="#E87CB0" opacity="0.6">★</text>
+      </svg>
+    </div>
+
+    <h1>Magical Kingdom<br>Scavenger Hunt</h1>
+    <div class="subtitle">The Ultimate Park Adventure</div>
+  </div>
+
+  <div class="gold-divider"></div>
+
+  <div class="content">
+
+    <div class="name-box">
+      <label>✨ Explorer:</label>
+      <input class="name-line" type="text" placeholder="Your name here!">
+    </div>
+
+    <div class="score-banner">
+      <div>
+        <div class="score-label">Magic Found</div>
+        <div class="stars-row" id="stars-row">⭐⭐⭐⭐⭐</div>
+      </div>
+      <div class="score-count"><span id="found-count">0</span> / <span id="total-count">20</span></div>
+    </div>
+
+    <!-- Section 1: Sky & Spectacle -->
+    <div class="section-title">🏰 Sky & Spectacle</div>
+    <div class="grid" id="sky-grid">
+      <div class="card c1" onclick="toggle(this)">
+        <div class="card-emoji">🏰</div>
+        <div class="card-text">
+          <div class="card-name">The Big Castle</div>
+          <div class="card-hint">Stop and stare — take a photo!</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card c2" onclick="toggle(this)">
+        <div class="card-emoji">🎈</div>
+        <div class="card-text">
+          <div class="card-name">A Character Balloon</div>
+          <div class="card-hint">What character is it?</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card c3" onclick="toggle(this)">
+        <div class="card-emoji">🎆</div>
+        <div class="card-text">
+          <div class="card-name">Twinkling Lights</div>
+          <div class="card-hint">On a building, tree or string!</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card c4" onclick="toggle(this)">
+        <div class="card-emoji">🚂</div>
+        <div class="card-text">
+          <div class="card-name">A Special Vehicle</div>
+          <div class="card-hint">Train, monorail, boat or trolley!</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+    </div>
+
+    <div class="gold-divider"></div>
+
+    <!-- Section 2: Magical People -->
+    <div class="section-title">🎭 Magical People</div>
+    <div class="grid" id="people-grid">
+      <div class="card p1" onclick="toggle(this)">
+        <div class="card-emoji">🎭</div>
+        <div class="card-text">
+          <div class="card-name">A Character in Costume</div>
+          <div class="card-hint">Wave and say hello!</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card p2" onclick="toggle(this)">
+        <div class="card-emoji">😊</div>
+        <div class="card-text">
+          <div class="card-name">A Cast Member Name Tag</div>
+          <div class="card-hint">Ask where they're from!</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card p3" onclick="toggle(this)">
+        <div class="card-emoji">👂</div>
+        <div class="card-text">
+          <div class="card-name">Ear Headbands Being Worn</div>
+          <div class="card-hint">How many can you count?</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card p4" onclick="toggle(this)">
+        <div class="card-emoji">🎂</div>
+        <div class="card-text">
+          <div class="card-name">A Birthday Button or Sash</div>
+          <div class="card-hint">Wish them a happy birthday!</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card p1" onclick="toggle(this)">
+        <div class="card-emoji">👨‍👩‍👧‍👦</div>
+        <div class="card-text">
+          <div class="card-name">A Family in Matching Outfits</div>
+          <div class="card-hint">Shirts, ears or full matching!</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card p3" onclick="toggle(this)">
+        <div class="card-emoji">📸</div>
+        <div class="card-text">
+          <div class="card-name">A Park Photographer</div>
+          <div class="card-hint">Strike a magical pose!</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+    </div>
+
+    <div class="gold-divider"></div>
+
+    <!-- Section 3: Magical Treats -->
+    <div class="section-title">🍦 Magical Treats</div>
+    <div class="grid" id="food-grid">
+      <div class="card f1" onclick="toggle(this)">
+        <div class="card-emoji">🦃</div>
+        <div class="card-text">
+          <div class="card-name">A Giant Turkey Leg</div>
+          <div class="card-hint">It's bigger than your head!</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card f2" onclick="toggle(this)">
+        <div class="card-emoji">🍦</div>
+        <div class="card-text">
+          <div class="card-name">Someone Eating Ice Cream</div>
+          <div class="card-hint">What flavor would you pick?</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card f3" onclick="toggle(this)">
+        <div class="card-emoji">🍿</div>
+        <div class="card-text">
+          <div class="card-name">A Popcorn Cart</div>
+          <div class="card-hint">What does it smell like?</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card f4" onclick="toggle(this)">
+        <div class="card-emoji">🥤</div>
+        <div class="card-text">
+          <div class="card-name">A Souvenir Cup or Mug</div>
+          <div class="card-hint">What character is on it?</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+    </div>
+
+    <div class="gold-divider"></div>
+
+    <!-- Section 4: Park Magic -->
+    <div class="section-title">🗺️ Park Magic</div>
+    <div class="grid" id="park-grid">
+      <div class="card k1" onclick="toggle(this)">
+        <div class="card-emoji">🗺️</div>
+        <div class="card-text">
+          <div class="card-name">A Park Map</div>
+          <div class="card-hint">Find where you are on it!</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card k2" onclick="toggle(this)">
+        <div class="card-emoji">🎪</div>
+        <div class="card-text">
+          <div class="card-name">A Parade or Performance</div>
+          <div class="card-hint">Dance along if you can!</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card k3" onclick="toggle(this)">
+        <div class="card-emoji">⏱️</div>
+        <div class="card-text">
+          <div class="card-name">A Wait Time Sign</div>
+          <div class="card-hint">What's the longest wait?</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+      <div class="card k4" onclick="toggle(this)">
+        <div class="card-emoji">🛍️</div>
+        <div class="card-text">
+          <div class="card-name">A Gift Shop Window</div>
+          <div class="card-hint">What would you bring home?</div>
+        </div>
+        <div class="checkbox"></div>
+      </div>
+    </div>
+
+    <!-- Bonus -->
+    <div class="bonus-section">
+      <div class="section-title">✨ Legendary Bonus Quests</div>
+      <ul class="bonus-list" id="bonus-list">
+        <li class="bonus-item" onclick="toggleBonus(this)">
+          <div class="checkbox"></div>
+          <span class="bonus-emoji">🔍</span>
+          <span class="bonus-name">Find a Hidden Mickey — 3 circles that make Mickey's head!</span>
+        </li>
+        <li class="bonus-item" onclick="toggleBonus(this)">
+          <div class="checkbox"></div>
+          <span class="bonus-emoji">🌍</span>
+          <span class="bonus-name">Spot 3 different countries, flags or cultures in the park</span>
+        </li>
+        <li class="bonus-item" onclick="toggleBonus(this)">
+          <div class="checkbox"></div>
+          <span class="bonus-emoji">📣</span>
+          <span class="bonus-name">Yell "I'm a Magical Explorer!" at the top of your lungs</span>
+        </li>
+        <li class="bonus-item" onclick="toggleBonus(this)">
+          <div class="checkbox"></div>
+          <span class="bonus-emoji">🏆</span>
+          <span class="bonus-name">Ask a cast member for their favorite magical secret about the park</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="congrats" id="congrats">
+      ✨ LEGENDARY EXPLORER! ✨<br>You discovered all the magic!
+    </div>
+
+    <button class="print-btn no-print" onclick="window.print()">🖨️ &nbsp; Print This Adventure</button>
+
+    <div class="footer">Stay with your group — the magic is everywhere! ✨</div>
+
+  </div><!-- /content -->
+</div><!-- /page -->
+
+<a href="index.html" class="home-btn" title="Back to Home">🏠</a>
+
+<script>
+  /* ── Star Field ── */
+  (function(){
+    const sf = document.getElementById('starfield');
+    for (let i = 0; i < 120; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = Math.random() * 3 + 1;
+      s.style.cssText = `
+        width:${size}px; height:${size}px;
+        top:${Math.random()*100}%;
+        left:${Math.random()*100}%;
+        --d:${(Math.random()*4+1.5).toFixed(1)}s;
+        animation-delay:${(Math.random()*5).toFixed(1)}s;
+      `;
+      sf.appendChild(s);
+    }
+  })();
+
+  /* ── Fireworks ── */
+  const canvas  = document.getElementById('fireworks');
+  const ctx     = canvas.getContext('2d');
+  let   fwActive = false;
+  let   particles = [];
+
+  function resizeCanvas() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function launchFirework() {
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height * 0.5;
+    const colors = ['#F0C040','#E87CB0','#90C8FF','#FF6B6B','#FFFFFF','#FFD700'];
+    const color  = colors[Math.floor(Math.random() * colors.length)];
+    for (let i = 0; i < 60; i++) {
+      const angle = (Math.PI * 2 / 60) * i;
+      const speed = Math.random() * 6 + 2;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        alpha: 1,
+        color,
+        size: Math.random() * 3 + 1
+      });
+    }
+  }
+
+  function animateFireworks() {
+    if (!fwActive) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      p.vy += 0.12;
+      p.vx *= 0.98;
+      p.alpha -= 0.018;
+      ctx.globalAlpha = Math.max(p.alpha, 0);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    particles = particles.filter(p => p.alpha > 0);
+    requestAnimationFrame(animateFireworks);
+  }
+
+  function startFireworks() {
+    fwActive = true;
+    canvas.style.display = 'block';
+    let count = 0;
+    const iv = setInterval(() => {
+      launchFirework();
+      if (++count >= 14) { clearInterval(iv); setTimeout(() => { fwActive = false; canvas.style.display = 'none'; }, 3000); }
+    }, 400);
+    animateFireworks();
+  }
+
+  /* ── Score ── */
+  const mainTotal  = 16;
+  const bonusTotal = 4;
+
+  function updateScore() {
+    const foundMain  = document.querySelectorAll('#sky-grid .card.found, #people-grid .card.found, #food-grid .card.found, #park-grid .card.found').length;
+    const foundBonus = document.querySelectorAll('#bonus-list .bonus-item.found').length;
+    const total = foundMain + foundBonus;
+    const max   = mainTotal + bonusTotal;
+
+    document.getElementById('found-count').textContent = total;
+    document.getElementById('total-count').textContent = max;
+
+    const pct = total / max;
+    let st = '⭐⭐⭐⭐⭐';
+    if      (pct === 0)    st = '☆☆☆☆☆';
+    else if (pct < 0.25)   st = '⭐☆☆☆☆';
+    else if (pct < 0.5)    st = '⭐⭐☆☆☆';
+    else if (pct < 0.75)   st = '⭐⭐⭐☆☆';
+    else if (pct < 1)      st = '⭐⭐⭐⭐☆';
+    document.getElementById('stars-row').textContent = st;
+
+    const congrats = document.getElementById('congrats');
+    if (total === max) {
+      congrats.style.display = 'block';
+      startFireworks();
+    } else {
+      congrats.style.display = 'none';
+    }
+  }
+
+  function toggle(card) {
+    card.classList.toggle('found');
+    card.querySelector('.checkbox').textContent = card.classList.contains('found') ? '✓' : '';
+    updateScore();
+  }
+
+  function toggleBonus(item) {
+    item.classList.toggle('found');
+    item.querySelector('.checkbox').textContent = item.classList.contains('found') ? '✓' : '';
+    updateScore();
+  }
+
+  updateScore();
+</script>
+</body>
+</html>
