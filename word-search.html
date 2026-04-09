@@ -684,8 +684,8 @@ wordInput.addEventListener('keydown', e => { if (e.key === 'Enter') addWord(); }
 function calcGridSize(wordList) {
   const maxLen = Math.max(...wordList.map(w => w.length));
   const totalLetters = wordList.reduce((s, w) => s + w.length, 0);
-  const base = Math.ceil(Math.sqrt(totalLetters * 3.2));
-  return Math.min(15, Math.max(base, maxLen + 2, 8));
+  const base = Math.ceil(Math.sqrt(totalLetters * 2.0));
+  return Math.min(11, Math.max(base, maxLen + 2, 7));
 }
 
 // ── Word search generator ──────────────────────────────────────────────────
@@ -758,7 +758,7 @@ function generateWordSearch(wordList, gridSize) {
 function tryGenerate(wordList) {
   const base = calcGridSize(wordList);
   for (let extra = 0; extra <= 5; extra++) {
-    const size = Math.min(16, base + extra);
+    const size = Math.min(13, base + extra);
     const result = generateWordSearch(wordList, size);
     if (result) return result;
   }
